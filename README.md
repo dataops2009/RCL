@@ -1,7 +1,6 @@
 # RCL MediaSaints Development Team
 
 ## Features
--
 - **Subscription Tiers**: Display different subscription options with detailed features and pricing.
 - **User Profiles**: Dedicated profile pages for users.
 - **Team Creation**: Allows users to create and manage teams.

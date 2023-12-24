@@ -1,39 +1,54 @@
 <head>
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 
 <body>
-html ref
 
 <div class="login-box">
+    <h2>BREACHERS VR</h2>
+    <div id="breacherlogo"><img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}"></div>
 
-    <h2>BREACHERS VR</h2>#
-        <div id="breacherlogo"><img src="images/BreachersLogo_Transparant.png"></div>
-    <form>
+    <!-- Updated form action, method, and id -->
+    <form action="{{ url_for('submit') }}" method="post" id="registerForm">
+        <!-- Username field -->
         <div class="user-box">
-            <input type="text" name="" required="">
-            <label>Username</label>
-          </div>
-          <div class="user-box">
-            <input type="password" name="" required="">
-            <label>Password</label>
-          </div>
-          <a href="#">
+            <input type="text" class="form-control" id="username" name="username" required>
+            <label for="username" class="form-label">Username</label>
+        </div>
+        <!-- Email field -->
+        <div class="user-box">
+            <input type="email" class="form-control" id="email" name="email" required>
+            <label for="email" class="form-label">Email</label>
+        </div>
+        <!-- Password field -->
+        <div class="user-box">
+            <input type="password" class="form-control" id="password" name="password" required>
+            <label for="password" class="form-label">Password</label>
+        </div>
+        <!-- Confirm Password field -->
+        <div class="user-box">
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+        </div>
+        <!-- Submit button -->
+        <a href="javascript:void(0);" onclick="document.getElementById('registerForm').submit();" class="styled-button">
             <span></span>
             <span></span>
             <span></span>
             <span></span>
-            Login 
-          </a>
-          <a href="#">
-              <span></span>
-              <span></span>
-              <span></span>
+            Register
+        </a>
+        <!-- Link to Create Account (if needed) -->
+        <a href="#">
+            <span></span>
+            <span></span>
+            <span></span>
             Create Account
-          </a>
-          <div class="signup-message">
-              <a href="#">Forgot your password?</a>
-          </div>
+        </a>
+        <!-- Link for Forgot Password -->
+        <div class="signup-message">
+            <a href="#">Forgot your password?</a>
+        </div>
     </form>
 </div>
 
