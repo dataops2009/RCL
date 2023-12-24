@@ -57,20 +57,33 @@ def submit():
                    (username, email, password))
 
     # Insert the username into the Players_Dim table
-    cursor.execute("INSERT INTO Players_Dim (ID, Name) VALUES (%s,%s)", (12345, username))
+    #cursor.execute("INSERT INTO Players_Dim (ID, Name) VALUES (%s,%s)", (12345, username))
 
     conn.commit()
     cursor.close()
     conn.close()
 
     return render_template_string("""
-        <html>
-            <body>
-                <h1>Registration successful!</h1>
-                <p>Thank you, {{ username }}, for registering.</p>
-            </body>
-        </html>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <title>Registration Successful</title>
+    </head>
+    <body>
+
+    <div class="login-box">
+        <h2>Registration Successful!</h2>
+        <div id="breacherlogo"><img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}"></div>
+        <p>Thank you, {{ username }}, for registering.</p>
+    </div>
+
+    </body>
+    </html>
     """, username=username)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
