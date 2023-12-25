@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCL My Account</title>
+    <link rel="stylesheet" href="../static/css/your_stylesheet.css"> <!-- Update the path to your CSS file -->
+</head>
+<body>
+    <header>
+        <!-- Navigation bar -->
+        <nav>
+            <a href="RCL_Home_Screen.html">Home</a>
+            <a href="RCL_Player_Profile_Screen.html">Player Profile</a>
+            <a href="RCL_Team_Profile_Screen.html">Team Profile</a>
+            <!-- Additional navigation links as needed -->
+        </nav>
+    </header>
+
+    <main>
+        <!-- Main content for My Account -->
+        <section class="my-account">
+            <h1>My Account</h1>
+            <div class="account-details">
+                <form action="path_to_your_update_endpoint" method="post">
+                    <!-- Example input fields (replicate and update as needed) -->
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" value="User123">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    <!-- Additional fields as needed -->
+                    <button type="submit">Update Profile</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <!-- Footer content -->
+        <p>© 2023 RCL Competitive League</p>
+    </footer>
+</body>
+</html>
