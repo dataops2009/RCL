@@ -12,9 +12,11 @@
 <body>
 
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">RCL</a>
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='images/RCL.png') }}" alt="RCL Logo" height="40">
+            </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -44,15 +46,17 @@
     </nav>
 
     <!-- Header with Title and Image -->
-    <header class="py-5 bg-dark text-white">
+    <header class="py-2 bg-dark text-white">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4">RCL BREACHERS</h1>
-                    <p class="lead">An elite league for Breachers VR enthusiasts</p>
-                </div>
                 <div class="col-lg-6 d-none d-lg-block">
-                    <img src="{{ url_for('static', filename='images/Enforcer_02.png') }}" alt="Player Model" class="img-fluid">
+                    <img src="{{ url_for('static', filename='images/TitleHeader_1.png') }}" alt="Title" class="img-fluid">
+                </div>
+                <div class="col-lg-4 d-none d-lg-block" style="margin-right: -125px;">
+                    <img src="{{ url_for('static', filename='images/Enforcer_01.png') }}" alt="Player Model" class="img-fluid">
+                </div>
+                <div class="col-lg-4 d-none d-lg-block"style="margin-left: -125px;">
+                    <img src="{{ url_for('static', filename='images/Revolter_01.png') }}" alt="Player Model" class="img-fluid">
                 </div>
             </div>
         </div>

@@ -173,3 +173,13 @@ html {
     }
   }
   
+ .bg-dark {
+    background-image: url('../images/bg_test.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background color */
+    backdrop-filter: blur(1000px); /* The value can be adjusted to increase or decrease the blur effect */
+}
+}
