@@ -8,7 +8,7 @@
     <h2>BREACHERS VR</h2>
     <div id="breacherlogo"><img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}"></div>
 
-    <!-- Updated form action, method, and id -->
+    <!-- Registration Form -->
     <form action="{{ url_for('submit') }}" method="post" id="registerForm">
         <!-- Username field -->
         <div class="user-box">
@@ -30,7 +30,7 @@
             <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
             <label for="confirm_password" class="form-label">Confirm Password</label>
         </div>
-        <!-- Submit button -->
+        <!-- Register button -->
         <a href="javascript:void(0);" onclick="document.getElementById('registerForm').submit();" class="styled-button">
             <span></span>
             <span></span>
@@ -38,12 +38,13 @@
             <span></span>
             Register
         </a>
-        <!-- Link to Create Account (if needed) -->
-        <a href="#">
+        <!-- Log In button -->
+        <a href="{{ url_for('login') }}" class="styled-button">
             <span></span>
             <span></span>
             <span></span>
-            Create Account
+            <span></span>
+            Log In
         </a>
         <!-- Link for Forgot Password -->
         <div class="signup-message">

@@ -54,6 +54,10 @@ def submit_team():
     print(teams)
     return redirect(url_for('profile'))
 
+@app.route('/main')
+def main():
+    # Add any necessary logic for the 'main' page
+    return render_template('main.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -73,7 +77,8 @@ def login():
         if user_record and check_password_hash(user_record[1], password):
             # User authenticated successfully
             # Here you can handle what happens next (e.g., redirect to profile)
-            return redirect(url_for('profile'))
+            session['username'] = username  # Log the user in
+            return redirect(url_for('home'))  # Redirect to the home page
         else:
             # User authentication failed
             return "Invalid username or password"
@@ -166,6 +171,16 @@ def submit():
             return "Error sending authentication code."
 
 
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    # Clear the user's session to log them out
+    session.pop('username', None)  # Remove the 'username' key from the session
+
+    # Redirect to the login page or any other page you prefer
+    return redirect(url_for('login'))
+
+    
 @app.route('/home')
 def home():
     if 'username' not in session:
