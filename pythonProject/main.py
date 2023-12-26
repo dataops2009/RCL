@@ -165,6 +165,31 @@ def submit():
         else:
             return "Error sending authentication code."
 
+
+@app.route('/home')
+def home():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        username = session['username']
+        # Fetch data from the 'Players_Dim' table based on the username
+        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+        cursor = conn.cursor()
+        cursor.execute("SELECT ID_VAR, Name FROM Players_Dim WHERE Name = %s", (username,))
+        player_data = cursor.fetchone()  # Use fetchone() to get a single row
+        cursor.close()
+        conn.close()
+
+        # Render the home page template with the fetched data
+        return render_template('home.html', username=username, player_data=player_data)
+    except Exception as e:
+        # Log the exception for debugging
+        print(f"An error occurred: {str(e)}")
+        return "An error occurred while loading the home page."
+
+
+
 def welcome():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -189,6 +214,7 @@ def welcome():
         </html>
     """, username=username)
 
+
 @app.route('/verify', methods=['POST'])
 def verify():
     entered_code = request.form['auth_code']
@@ -202,16 +228,7 @@ def verify():
         if stored_code == entered_code:
             # Correct code and within time limit
             session['username'] = username  # User is now logged in
-            return render_template_string("""
-                <html>
-                    <body>
-                        <h1>Verification successful!</h1>
-                        <p>Welcome, {{ username }}. You are now logged in.</p>
-                        <!-- Redirect to profile or dashboard page -->
-                        <a href="{{ url_for('profile') }}">Go to Profile</a>
-                    </body>
-                </html>
-            """, username=username)
+            return redirect(url_for('home'))  # Redirect to the home page
         else:
             return "Invalid authentication code."
     else:
