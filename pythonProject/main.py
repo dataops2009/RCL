@@ -125,12 +125,14 @@ def submit():
 
         # Fetch the latest ID and increment it
         cursor.execute("SELECT MAX(ID_Var) FROM Players_Dim")
+
         last_id_row = cursor.fetchone()
         if last_id_row and last_id_row[0]:
-            last_id = int(last_id_row[0])  # Assuming ID is stored as an integer
+            last_id = int(last_id_row[0].split('-')[1])  # Extract the numeric part and convert to int
             new_id = f"PL-{last_id + 1}"
         else:
             new_id = "PL-1000"
+
 
         # Hash the password and insert new user
         hashed_password = generate_password_hash(password)
