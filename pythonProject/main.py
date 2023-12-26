@@ -114,11 +114,29 @@ def submit():
         if password != confirm_password:
             return "Passwords do not match. Please go back and try again."
 
+        
         conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
         cursor = conn.cursor()
         
-        cursor.execute("INSERT INTO UserRegistration (Username, Email, Password) VALUES (%s, %s, %s)", (username, email, password))
-        #cursor.execute("INSERT INTO Players_Dim (ID, Name) VALUES (%s,%s)", (12345, username))
+        # Check if email already exists
+        cursor.execute("SELECT * FROM UserRegistration WHERE Email = %s", (email,))
+        if cursor.fetchone():
+            return "Email already registered. Please try another email."
+
+        # Fetch the latest ID and increment it
+        cursor.execute("SELECT MAX(ID_Var) FROM Players_Dim")
+        last_id_row = cursor.fetchone()
+        if last_id_row and last_id_row[0]:
+            last_id = int(last_id_row[0])  # Assuming ID is stored as an integer
+            new_id = f"PL-{last_id + 1}"
+        else:
+            new_id = "PL-1000"
+
+        # Hash the password and insert new user
+        hashed_password = generate_password_hash(password)
+        cursor.execute("INSERT INTO UserRegistration (Username, Email, Password) VALUES (%s, %s, %s)", (username, email, hashed_password))
+
+        cursor.execute("INSERT INTO Players_Dim (ID_Var, Name) VALUES (%s, %s)", (new_id, username))
 
         conn.commit()
         cursor.close()
@@ -127,7 +145,6 @@ def submit():
         # Generate and send authentication code
         auth_code = str(random.randint(100000, 999999))
         auth_codes[username] = {'code': auth_code, 'timestamp': datetime.now()}
-
         email_status = send_auth_code_email(email, auth_code)
         if email_status == 200:
             return render_template_string("""
@@ -146,19 +163,29 @@ def submit():
         else:
             return "Error sending authentication code."
 
+def welcome():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+    # Fetch user-specific information from the database
+    conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM UserRegistration WHERE Username = %s", (username,))
+    user_info = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    # Assuming user_info contains the necessary details
     return render_template_string("""
         <html>
             <body>
-                <form action="/signup" method="post">
-                    Username: <input type="text" name="username"><br>
-                    Email: <input type="text" name="email"><br>
-                    Password: <input type="password" name="password"><br>
-                    Confirm Password: <input type="password" name="confirm_password"><br>
-                    <input type="submit" value="Submit">
-                </form>
+                <h1>Welcome, {{ username }}!</h1>
+                <p>Here is your information:</p>
+                <!-- Display user information here -->
             </body>
         </html>
-    """)
+    """, username=username)
 
 @app.route('/verify', methods=['POST'])
 def verify():
@@ -187,7 +214,6 @@ def verify():
             return "Invalid authentication code."
     else:
         return "Authentication code expired or invalid."
-
 
 
 if __name__ == '__main__':
