@@ -33,7 +33,7 @@ def subscribe():
         {'name': 'Premium', 'price': '$10/month', 'features': ['Feature 1', 'Feature 2', 'Feature 3']},
         {'name': 'Pro', 'price': '$20/month', 'features': ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4']}
     ]
-    return render_template('main.html', tiers=tiers)
+    return render_template('RCL_Home_Screen.html', tiers=tiers)
 
 @app.route('/profile')
 def profile():
