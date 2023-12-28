@@ -1,13 +1,23 @@
 import random
 
 class tournament:
-    def __init__(self, tName, id, duration_days, prize_pool, game_type):
-        self.tName = tName
-        self.id = id
-        self.duration_days = duration_days
-        self.prize_pool = prize_pool
-        self.game_type = game_type
+    def __init__(self):
+        self.tName = input('Enter a name for the Tournament:')
+        self.id = int(input('Enter an ID number:'))
+        self.duration_days = int(input('Enter the duration in days:'))
+        self.prize_pool = int(input("What's the prize pool in £:"))
+        self.game_type = input('Enter the gametype:')
         self.teamRankings = [{'team':'test', 'score':0, 'wins':0, 'losses':0, 'draws':0}]
+        #print all the attributes
+        print('Tournament has been created!')
+        print('')
+        print('Tournament Name: ' + self.tName)
+        print('Tournament ID: ' + str(self.id))
+        print('Tournament Duration: ' + str(self.duration_days) + ' days')
+        print('Tournament Prize Pool: £' + str(self.prize_pool))
+        print('Tournament Game Type: ' + self.game_type)
+        print('')
+
     
     def create_match_ups(self, ActiveTeamList):
         self.ActiveTeamList = ActiveTeamList
@@ -21,6 +31,9 @@ class tournament:
         self.teamRankings = []
         for i in range(len(self.ActiveTeamList)):
             self.teamRankings.append({'team':self.ActiveTeamList[i], 'score':0, 'wins':0, 'losses':0, 'draws':0})
+        print(f'Team Rankings have been initialised!')
+        print(f'Total teams: {len(self.teamRankings)}')
+        print('')
         return self.teamRankings
     
     def update_team_rankings(self, match_results):
@@ -46,6 +59,10 @@ class tournament:
                     else:  # It's a draw
                         self.teamRankings[j]['score'] += 1
                         self.teamRankings[j]['draws'] += 1
+        print('')
+        print('Team Rankings have been updated!')
+        print('')
+
         return self.teamRankings
     
     def get_match_results(self, match_ups):
@@ -92,4 +109,41 @@ class tournament:
                 else:
                     self.top_8_teams.remove(self.match_results[i][0])
         return self.top_8_teams
+    def run_tournament_phase_prefinal(self, teama):
+        self.teama = teama
+        self.create_match_ups(teama)
+        self.get_match_results(self.match_ups)
+        self.log_match_results(self.match_results)
+        self.update_team_rankings(self.match_results)
+        print('')
+        print(self.teamRankings)
+        print('')
+        self.print_league_table(self.teamRankings)
+        print('')
+
+    def run_tournament_phase_final(self, top_8_teams):
+        self.top_8_teams = top_8_teams
+        self.create_match_ups(self.top_8_teams)
+        self.get_match_results(self.match_ups)
+        self.log_match_results(self.match_results)
+        self.update_team_rankings(self.match_results)
+        self.remove_losing_team_from_top_8(self.match_results,self.top_8_teams)
+        print(self.top_8_teams)
+        print(' Move on to the next round!')
+        print('')
+    
+    def transition_to_final(self):
+        self.select_top_8_teams(self.teamRankings)
+        print('Top 8 teams are:')
+        print(self.top_8_teams)
+        print('')
+
+    def customise_tournament(self):
+        self.tName = input('Enter a name for the Tournament:')
+        self.id = int(input('Enter an ID number:'))
+        self.duration_days = int(input('Enter the duration in days:'))
+        self.prize_pool = int(input("What's the prize pool in £:"))
+        self.game_type = input('Enter the gametype:')
+        print('Tournament has been customised!')
+        print('')
     
