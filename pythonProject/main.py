@@ -8,6 +8,15 @@ import random
 from datetime import datetime, timedelta
 
 
+
+# Creating teams 
+# Inviting the players
+# Players being able to see their invite from team
+
+
+
+
+
 app = Flask(__name__)
 
 teams = []
@@ -22,7 +31,39 @@ api_secret = '690bd92e04f6e062c52d10afa0966c3f'
 mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
 # Simulated database for storing auth codes and timestamps
+
 auth_codes = {}
+
+
+
+ #New route for the Forgot Password page
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        # Check if the email exists in your database
+        cursor.execute("SELECT Username FROM UserRegistration WHERE Email = %s", (email,))
+        user_record = cursor.fetchone()
+
+        if user_record:
+            # Generate and send a verification code via email
+            auth_code = str(random.randint(100000, 999999))
+            auth_codes[user_record[0]] = {'code': auth_code, 'timestamp': datetime.now()}
+            email_status = send_auth_code_email(email, auth_code)
+
+            if email_status == 200:
+                return redirect(url_for('password_reset_confirm'))
+            else:
+                return "Error sending verification code."
+
+    return render_template('forgot_password')
+
+# ... Other routes and logic ...
+
+# New route for the password reset confirmation
+@app.route('/password-reset-confirm')
+def password_reset_confirm():
+    return render_template('password_reset_confirm.html')
 
 
 @app.route('/subscribe')
@@ -33,17 +74,13 @@ def subscribe():
         {'name': 'Premium', 'price': '$10/month', 'features': ['Feature 1', 'Feature 2', 'Feature 3']},
         {'name': 'Pro', 'price': '$20/month', 'features': ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4']}
     ]
-    return render_template('RCL_Home_Screen.html', tiers=tiers)
+    return render_template('main.html', tiers=tiers)
 
 @app.route('/profile')
 def profile():
     # ... any necessary logic ...
     return render_template('main.html')
 
-@app.route('/create-team', methods=['GET'])
-def create_team_form():
-    # ... any necessary logic ...
-    return render_template('create_team.html')
 
 @app.route('/submit-team', methods=['POST'])
 def submit_team():
@@ -249,6 +286,76 @@ def verify():
     else:
         return "Authentication code expired or invalid."
 
+
+def generate_id(cursor, table_name, id_column_name, prefix, start_id=1001):
+    cursor.execute(f"SELECT MAX({id_column_name}) FROM {table_name}")
+    last_id = cursor.fetchone()[0]
+
+    if last_id is None or '-' not in last_id:
+        return f"{prefix}-{start_id}"
+
+    number = int(last_id.split('-')[1]) + 1
+    return f"{prefix}-{number}"
+
+@app.route('/create-team', methods=['GET', 'POST'])
+def create_team():
+    if request.method == 'POST':
+        name = request.form['name']
+        captain_username = request.form['captain']
+        co_captain_username = request.form['co_captain']
+        selected_player_usernames = request.form.getlist('selected-players[]')
+
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                               user='rcldeveloper',
+                               password='media$2009',
+                               database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        # Generate Team ID for Teams_Dim
+        team_id = generate_id(cursor, 'Teams_Dim', 'ID', 'TD')
+
+        # Get Captain and Co-Captain IDs
+        cursor.execute("SELECT ID_Var FROM Players_Dim WHERE Name = %s", (captain_username,))
+        captain_id = cursor.fetchone()[0]
+        cursor.execute("SELECT ID_Var FROM Players_Dim WHERE Name = %s", (co_captain_username,))
+        co_captain_id = cursor.fetchone()[0]
+
+        # Insert team data into Teams_Dim table
+        cursor.execute("""
+            INSERT INTO Teams_Dim (ID, Name, CaptainID, CoCaptainID, NumOfPlayers)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (team_id, name, captain_id, co_captain_id, len(selected_player_usernames)))
+
+        # Insert selected players into TeamPlayers table
+        for username in selected_player_usernames:
+            cursor.execute("SELECT ID_Var FROM Players_Dim WHERE Name = %s", (username,))
+            player_id = cursor.fetchone()[0]
+            if player_id:
+                # Generate TeamPlayer ID for TeamPlayers
+                team_player_id = generate_id(cursor, 'TeamPlayers', 'TeamPlayer_ID', 'TP')
+                cursor.execute("""
+                    INSERT INTO TeamPlayers (TeamPlayer_ID, Team_ID, Player_ID)
+                    VALUES (%s, %s, %s)
+                """, (team_player_id, team_id, player_id))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return "Team created successfully."
+
+    # Fetch the list of player usernames
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+    cursor.execute("SELECT Name FROM Players_Dim")
+    player_list = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conn.close()
+
+    return render_template('create_team.html', player_list=player_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
