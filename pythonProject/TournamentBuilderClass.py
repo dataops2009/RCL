@@ -74,40 +74,22 @@ class tournament:
         print("Team\t\tScore\tWins\tLosses\tDraws")
         for i in range(len(self.teamRankings)):
             print(self.teamRankings[i]['team'] + "\t\t" + str(self.teamRankings[i]['score']) + "\t" + str(self.teamRankings[i]['wins']) + "\t" + str(self.teamRankings[i]['losses']) + "\t" + str(self.teamRankings[i]['draws']))
-
-
-#Test implementation
-testTournament = tournament(tName='testTournament', id=1, duration_days=5, prize_pool=1000, game_type='1v1')
-
-teama = ['Eagles', 'Tigers', 'Lions', 'Bears', 'Sharks', 'Wolves']
-
-testTournament.initialise_team_rankings(teama)
-app_running = True
-x = 0
-
-while x < 5:
-    testTournament.create_match_ups(teama)
-    testTournament.get_match_results(testTournament.match_ups)
-    testTournament.log_match_results(testTournament.match_results)
-    testTournament.update_team_rankings(testTournament.match_results)
-    print(testTournament.teamRankings)
-
-    x = x +1
-
-print('')
-testTournament.print_league_table(testTournament.teamRankings)
-x=0
-print('')
-
-while x < 5:
-    testTournament.create_match_ups(teama)
-    testTournament.get_match_results(testTournament.match_ups)
-    testTournament.log_match_results(testTournament.match_results)
-    testTournament.update_team_rankings(testTournament.match_results)
-    print(testTournament.teamRankings)
-
-    x = x +1
-
-print('')
-testTournament.print_league_table(testTournament.teamRankings)
-print('')   
+    def select_top_8_teams(self, teamRankings):
+        self.teamRankings = teamRankings
+        self.top_8_teams = []
+        self.teamRankings.sort(key=lambda x: x['score'], reverse=True)
+        for i in range(8):
+            self.top_8_teams.append(self.teamRankings[i]['team'])
+        return self.top_8_teams
+    
+    def remove_losing_team_from_top_8(self, match_results, top_8_teams):
+        self.match_results = match_results
+        self.top_8_teams = top_8_teams
+        for i in range(len(self.match_results)):
+            if self.match_results[i][4] != "Draw":
+                if self.match_results[i][4] == self.match_results[i][0]:
+                    self.top_8_teams.remove(self.match_results[i][1])
+                else:
+                    self.top_8_teams.remove(self.match_results[i][0])
+        return self.top_8_teams
+    
