@@ -10,7 +10,7 @@ from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
 
-from notifications import NotificationManager
+from NotificationClass import NotificationManager
 
 app = Flask(__name__)
 
