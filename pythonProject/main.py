@@ -10,6 +10,8 @@ from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
 
+from notifications import NotificationManager
+
 app = Flask(__name__)
 
 teams = []
@@ -23,8 +25,42 @@ api_key = '0f502cb98eda788b78d88b0d79feae51'
 api_secret = '690bd92e04f6e062c52d10afa0966c3f'
 mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
+manager = NotificationManager()
 
-# Simulated database for storing auth codes and timestamps
+notifications = {}
+
+
+notification_manager = NotificationManager()
+
+
+@app.route('/notifications')
+def show_notifications():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        username = session['username']
+
+        # Connect to your database
+        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        # Fetch user's ID_Var
+        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+        user_id = cursor.fetchone()[0]
+
+        # Get notifications for the user
+        notifications = notification_manager.get_notifications(user_id)  # <-- Add this line
+
+        cursor.close()
+        conn.close()
+
+        return render_template('notifications.html', notifications=notifications)
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return "An error occurred while trying to fetch notifications."
+
 
 auth_codes = {}
 @app.route('/login', methods=['GET', 'POST'])
@@ -220,7 +256,7 @@ def confirm_addition(token):
 def RCL_My_Account_Screen():
     return render_template('RCL_My_Account_Screen.html')
 
-    #RCL_Team_Management_Screen
+   
 
 @app.route('/RCL_Team_Management_Screen/', defaults={'team_id': None})
 @app.route('/RCL_Team_Management_Screen/<team_id>', methods=['GET', 'POST'])
@@ -277,6 +313,19 @@ def RCL_Team_Management_Screen(team_id):
                 # Send confirmation email
                 confirmation_link = f"http://127.0.0.1:5000/confirm_addition/{token}"
                 send_confirmation_email(user_email, confirmation_link)
+
+
+
+                #notification_message = f"You have been invited to join the team with ID {team_id}. Please check your email for the confirmation link."
+                #notification_manager.add_notification(player_id, notification_message)
+                try:
+                    notification_message = f"You have been invited to join the team with ID {team_id}. Please check your email for the confirmation link."
+                    notification_manager.add_notification(player_id, notification_message)
+                    return redirect(url_for('show_notifications'))
+
+                except Exception as e:
+                    print(f"Error adding notification: {e}")
+
 
             elif action == 'remove':
                 team_player_id = request.form['player_id']
