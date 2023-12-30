@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recruitment</title>
+    <!-- Add any additional CSS or JS links here -->
+</head>
+<body>
+    <h1>Recruitment Opportunities</h1>
+    <h2>Players with Similar Rankings</h2>
+    <table>
+        <tr>
+            <th>Player ID</th>
+            <th>Name</th>
+            <th>Ranking</th>
+            <th>Action</th>
+        </tr>
+        {% for player in available_players %}
+            <tr>
+                <td>{{ player[0] }}</td> <!-- Accessing first element of the tuple -->
+                <td>{{ player[1] }}</td> <!-- Accessing second element of the tuple -->
+                <td>{{ player[2] }}</td> <!-- Accessing third element of the tuple -->
+                <td>
+                    <form action="{{ url_for('recruitment', team_id=team_id) }}" method="post">
+                        <input type="hidden" name="player_id" value="{{ player[0] }}">
+                        <button type="submit">Add to Team</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

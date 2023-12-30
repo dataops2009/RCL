@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Management</title>
+</head>
+<body>
+    <h1>Team Management</h1>
+    <p>Team ID: {{ team_id }}</p>
+
+    <h2>Current Team Players</h2>
+    <ul>
+        {% for team_player_id, team_id, player_id, player_email, player_name in current_team_players %}
+            <li>
+                {{ player_name }} ({{ player_email }})
+                <form method="post" id="remove-form-{{ team_player_id }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="player_id" value="{{ team_player_id }}">
+                    <button type="button" onclick="removePlayer('{{ team_player_id }}')">Remove</button>
+                
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>All Players</h2>
+    <form method="post">
+        <select name="player_id">
+            {% for player_id, player_name in all_players %}
+                <option value="{{ player_id }}">{{ player_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="action" value="add">
+        <button type="submit">Add Player</button>
+    </form>
+
+    <h2>Change Team Name</h2>
+    <form method="post">
+        <input type="text" name="new_name" placeholder="New Team Name">
+        <input type="hidden" name="action" value="change_name">
+        <button type="submit">Change Name</button>
+    </form>
+
+    <script>
+        // JavaScript function to refresh the page
+        function refreshPage() {
+            location.reload(); // Reload the current page
+        }
+
+        // JavaScript function to remove a player and refresh the page
+        function removePlayer(playerId) {
+            const form = document.getElementById(`remove-form-${playerId}`);
+            form.submit(); // Submit the form to remove the player
+        }
+    </script>
+</body>
+</html>
