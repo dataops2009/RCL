@@ -223,8 +223,6 @@ def RCL_My_Account_Screen():
     return render_template('RCL_My_Account_Screen.html')
 
    
-
-
 @app.route('/RCL_Team_Management_Screen/', methods=['GET', 'POST'])
 def RCL_Team_Management_Screen():
     # Redirect to login if no user is logged in
@@ -242,26 +240,16 @@ def RCL_Team_Management_Screen():
         cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
         user_id = cursor.fetchone()[0]
 
-        # Check if the user is a captain
+        # Check if the user is a captain and get their team_id
         cursor.execute("SELECT ID FROM Teams_Dim WHERE CaptainID = %s", (user_id,))
-        team_id = cursor.fetchone()
+        team_id_row = cursor.fetchone()
 
-        if team_id is None:
+        if team_id_row is None:
             cursor.close()
             conn.close()
             return "You are not a captain of any team."
 
-        # Fetch current team players
-        cursor.execute("SELECT tp.TeamPlayer_ID, tp.Team_ID, tp.Player_ID, u.Email, pd.Name FROM TeamPlayers tp "
-                       "JOIN UserRegistration u ON tp.Player_ID = u.ID_Var "
-                       "JOIN Players_Dim pd ON tp.Player_ID = pd.ID_Var "
-                       "WHERE tp.Team_ID = %s", (team_id,))
-
-        current_team_players = cursor.fetchall()
-
-        # Fetch all players for the dropdown
-        cursor.execute("SELECT ID_Var, Name FROM Players_Dim")
-        all_players = cursor.fetchall()
+        team_id = team_id_row[0]
 
         if request.method == 'POST':
             action = request.form['action']
@@ -292,6 +280,17 @@ def RCL_Team_Management_Screen():
             # Rest of your code for 'remove' and 'change_name' actions
 
             conn.commit()
+
+        # Fetch current team players
+        cursor.execute("SELECT tp.TeamPlayer_ID, tp.Team_ID, tp.Player_ID, u.Email, pd.Name FROM TeamPlayers tp "
+                       "JOIN UserRegistration u ON tp.Player_ID = u.ID_Var "
+                       "JOIN Players_Dim pd ON tp.Player_ID = pd.ID_Var "
+                       "WHERE tp.Team_ID = %s", (team_id,))
+        current_team_players = cursor.fetchall()
+
+        # Fetch all players for the dropdown
+        cursor.execute("SELECT ID_Var, Name FROM Players_Dim")
+        all_players = cursor.fetchall()
 
         cursor.close()
         conn.close()
