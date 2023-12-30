@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
@@ -63,29 +62,41 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="containermy-5">
-        <div class="row mb-4 text-center text-white">
-            <!-- Placeholder for Player PNG -->
-            <div class="col-md-4 mb-3 text-white">
-                <img src="{{ url_for('static', filename='images/Breachers_Factory_Upgrade_4K.png') }}" alt="Player" class="img-fluid">
-                <h2 class="gametitle">The Arena</h2>
-                <p class="text-muted text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            </div>
-            <!-- Placeholder for PNG Content -->
-            <div class="col-md-4 mb-3 text-white">
-                <img src="{{ url_for('static', filename='images/Breachers_Factory_Shootout_4K.png') }}" alt="Content" class="img-fluid">
-                <h2 class="gametitle">The Challenge</h2>
-                <p class="text-muted text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            </div>
-            <!-- Placeholder for PNG Content -->
-            <div class="col-md-4 mb-3 text-white">
-                <img src="{{ url_for('static', filename='images/Breachers_Hideout_Outside_4K.png') }}" alt="Content" class="img-fluid">
-                <h2 class="gametitle">The Victory</h2>
-                <p class="text-muted text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <main class="container my-5">
+        <h1 class="text-center">Welcome, {{ username }}!</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Your Player Data:</h2>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <!-- Add more columns as needed -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ player_data[0] }}</td>  <!-- Assuming ID is the first column -->
+                            <td>{{ player_data[1] }}</td>  <!-- Assuming Name is the second column -->
+                            <!-- Add more columns as needed -->
+                        </tr>
+                    </tbody>
+                </table>
+                <form action="/logout" method="post">
+                    <input type="submit" value="Log Out" class="btn btn-primary">
+                </form>
+                <form action="/create-team" method="get">
+                    <input type="submit" value="Create Team" class="btn btn-secondary">
+                </form>
             </div>
         </div>
-        <div class="row text-center text-white">
-            <!-- Steps and Prizes Section -->
+    </main>
+</body>
+</html>
+
+       <!--<div class="row text-center text-white">
+             Steps and Prizes Section 
             <div class="col-md-6 mb-3 text-white">
                 <h3>How to Join</h3>
                 <p class="text-muted text-white">Follow these steps to start your journey towards becoming a champion.</p>
@@ -95,3 +106,4 @@
                 <h3>Rewards</h3>
                 <p class="text-muted">Compete for glory and earn epic rewards.</p>
                 <a href="#" class="btn btn
+-->

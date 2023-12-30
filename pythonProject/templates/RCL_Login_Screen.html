@@ -1,45 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <title>Login</title>
 </head>
-
 <body>
-
-<div class="login-box">
-    <h2>BREACHERS VR</h2>
-    <div id="breacherlogo"><img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}"></div>
-
-    <!-- Updated form action, method, and id -->
-    <form action="{{ url_for('PYTHON FUNCTION REQUIRED') }}" method="post" id="loginForm">
-        <!-- Username field -->
-        <div class="user-box">
-            <input type="text" class="form-control" id="username" name="username" required>
-            <label for="username" class="form-label">Username</label>
+    <div class="login-box">
+        <h2>BREACHERS VR</h2>
+        <div id="breacherlogo">
+            <img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}">
         </div>
-        <!-- Password field -->
-        <div class="user-box">
-            <input type="password" class="form-control" id="password" name="password" required>
-            <label for="password" class="form-label">Password</label>
-        </div>
-        <!-- Submit button -->
-        <a href="javascript:void(0);" onclick="document.getElementById('registerForm').submit();" class="styled-button">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            Register
-        </a>
-        <!-- Link to Create Account (if needed) -->
-        <a href="#">
-            <span></span>
-            <span></span>
-            <span></span>
-            Create Account
-        </a>
-        <!-- Link for Forgot Password -->
-        <div class="signup-message">
-            <a href="#">Forgot your password?</a>
-        </div>
-    </form>
-</div>
 
+        <!-- I've maintained the form action and method from your first HTML part -->
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+            <!-- Username field -->
+            <div class="user-box">
+                <input type="text" class="form-control" name="username" required>
+                <label for="username" class="form-label">Username</label>
+            </div>
+            <!-- Password field -->
+            <div class="user-box">
+                <input type="password" class="form-control" name="password" required>
+                <label for="password" class="form-label">Password</label>
+            </div>
+            <!-- Submit button -->
+            <a href="javascript:void(0);" onclick="document.getElementById('loginForm').submit();" class="styled-button">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                Login
+            </a>
+            <!-- Link for Forgot Password -->
+            <div class="signup-message">
+                <a href="#">Forgot your password?</a>
+            </div>
+        </form>
+        <p>Don't have an account? <a href="{{ url_for('registration') }}">Sign Up</a></p>
+    </div>
 </body>
+</html>

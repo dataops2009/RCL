@@ -1,70 +1,10 @@
-import pymssql
-from flask import Flask, render_template, redirect, url_for, request, render_template_string
-import pymssql
-from flask import Flask, render_template, redirect, url_for, request, render_template_string, session
-from werkzeug.security import generate_password_hash, check_password_hash
-from mailjet_rest import Client
-import random
-from datetime import datetime, timedelta
-
-
-
-# Creating teams 
-# Inviting the players
-# Players being able to see their invite from team
-
-
+from flask import Flask, render_template, redirect, url_for, request
 
 
 
 app = Flask(__name__)
 
 teams = []
-
-
-# Add your secret key for session management
-app.secret_key = '0123456789abcdef0123456789abcdef'
-
-# Mailjet setup
-api_key = '0f502cb98eda788b78d88b0d79feae51'
-api_secret = '690bd92e04f6e062c52d10afa0966c3f'
-mailjet = Client(auth=(api_key, api_secret), version='v3.1')
-
-# Simulated database for storing auth codes and timestamps
-
-auth_codes = {}
-
-
-
- #New route for the Forgot Password page
-@app.route('/forgot-password', methods=['GET', 'POST'])
-def forgot_password():
-    if request.method == 'POST':
-        email = request.form['email']
-        # Check if the email exists in your database
-        cursor.execute("SELECT Username FROM UserRegistration WHERE Email = %s", (email,))
-        user_record = cursor.fetchone()
-
-        if user_record:
-            # Generate and send a verification code via email
-            auth_code = str(random.randint(100000, 999999))
-            auth_codes[user_record[0]] = {'code': auth_code, 'timestamp': datetime.now()}
-            email_status = send_auth_code_email(email, auth_code)
-
-            if email_status == 200:
-                return redirect(url_for('password_reset_confirm'))
-            else:
-                return "Error sending verification code."
-
-    return render_template('forgot_password')
-
-# ... Other routes and logic ...
-
-# New route for the password reset confirmation
-@app.route('/password-reset-confirm')
-def password_reset_confirm():
-    return render_template('password_reset_confirm.html')
-
 
 @app.route('/subscribe')
 def subscribe():
@@ -74,27 +14,29 @@ def subscribe():
         {'name': 'Premium', 'price': '$10/month', 'features': ['Feature 1', 'Feature 2', 'Feature 3']},
         {'name': 'Pro', 'price': '$20/month', 'features': ['Feature 1', 'Feature 2', 'Feature 3', 'Feature 4']}
     ]
-    return render_template('main.html', tiers=tiers)
+    return render_template('subscribe.html', tiers=tiers)
 
-@app.route('/profile')
-def profile():
+@app.route('/Registration')
+def registration():
     # ... any necessary logic ...
-    return render_template('main.html')
+<<<<<<< Updated upstream
+    return render_template('profile.html')
 
+@app.route('/create-team', methods=['GET'])
+def create_team_form():
+    # ... any necessary logic ...
+    return render_template('create_team.html')
 
 @app.route('/submit-team', methods=['POST'])
 def submit_team():
-    user_name = request.form['user_name']
-    password = request.form['password']
-    teams.append({'user_name':user_name,'password':password})
+    team_name = request.form['team_name']
+    team_description = request.form['team_description']
+    teams.append({'team_name':team_name,'team_description':team_description})
     # Redirect to the profile or another appropriate page
     print(teams)
     return redirect(url_for('profile'))
-
-@app.route('/main')
-def main():
-    # Add any necessary logic for the 'main' page
-    return render_template('main.html')
+=======
+    return render_template('RCL_Signup_Screen.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -120,7 +62,7 @@ def login():
             # User authentication failed
             return "Invalid username or password"
 
-    return render_template('login.html')
+    return render_template('RCL_Login_Screen.html')
 
 
 def send_auth_code_email(email, auth_code):
@@ -234,7 +176,7 @@ def home():
         conn.close()
 
         # Render the home page template with the fetched data
-        return render_template('home.html', username=username, player_data=player_data)
+        return render_template('RCL_Home_Screen.html', username=username, player_data=player_data)
     except Exception as e:
         # Log the exception for debugging
         print(f"An error occurred: {str(e)}")
@@ -297,7 +239,7 @@ def generate_id(cursor, table_name, id_column_name, prefix, start_id=1001):
     number = int(last_id.split('-')[1]) + 1
     return f"{prefix}-{number}"
 
-@app.route('/create-team', methods=['GET', 'POST'])
+@app.route('/CreateTeam', methods=['GET', 'POST'])
 def create_team():
     if request.method == 'POST':
         name = request.form['name']
@@ -355,7 +297,8 @@ def create_team():
     cursor.close()
     conn.close()
 
-    return render_template('create_team.html', player_list=player_list)
+    return render_template('RCL_Create_Team.html', player_list=player_list)
+>>>>>>> Stashed changes
 
 if __name__ == '__main__':
     app.run(debug=True)
