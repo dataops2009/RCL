@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCL Recruitment Centre</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <!-- Main Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <header>
-
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Header and Navigation Bar Here -->
+  <header>
+       <!-- Navigation Bar -->
+       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,42 +40,27 @@
         </div>
     </nav>
     </header>
-
     <main>
-        <!-- Main content for Recruitment Centre -->
         <section class="recruitment-centre">
-            <h1>Recruitment Centre</h1>
+            <h1>Recruitment Centre for Team {{ team_id }}</h1>
             <div class="player-listings">
                 <h2>Available Players</h2>
-                <!-- List of players looking for teams -->
-                <!-- Example: Player Card -->
+                {% for player in available_players %}
                 <div class="player-card">
-                    <p>Player Name: John Doe</p>
-                    <p>Position: Forward</p>
-                    <p>Experience: 3 years</p>
-                    <!-- Additional player details -->
+                    <p>Player ID: {{ player[0] }}</p>
+                    <p>Player Name: {{ player[1] }}</p>
+                    <p>Ranking: {{ player[2] }}</p>
+                   <form method="POST" action="{{ url_for('RCL_Recruitment_Centre_Screen', team_id=team_id) }}">
+
+                        <input type="hidden" name="player_id" value="{{ player[0] }}">
+                        <input type="submit" value="Invite to Team">
+                    </form>
                 </div>
-                <!-- Repeat for other available players -->
+                {% endfor %}
             </div>
-            <div class="team-listings">
-                <h2>Teams Looking for Players</h2>
-                <!-- List of teams looking for new members -->
-                <!-- Example: Team Card -->
-                <div class="team-card">
-                    <p>Team Name: Alpha Squad</p>
-                    <p>Required Position: Goalkeeper</p>
-                    <p>Minimum Experience: 2 years</p>
-                    <!-- Additional team requirements -->
-                </div>
-                <!-- Repeat for other teams -->
-            </div>
-            <!-- Additional recruitment features as needed -->
         </section>
     </main>
 
-    <footer>
-        <!-- Footer content -->
-        <p>© 2023 RCL Competitive League</p>
-    </footer>
+    <!-- Footer Here -->
 </body>
 </html>

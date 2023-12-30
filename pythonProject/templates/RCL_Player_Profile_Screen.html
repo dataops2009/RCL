@@ -36,45 +36,52 @@
     </nav>
   </header>
 
-
 <body>
-    
-    <div class="myprofile">
-        <a href="#">My Profile</a>
-    </div>
-
-    <div class="layout">
-        <div class="profile">
-            <div class="profile__picture"><img src="images/Enforcer_01.png" alt="ananddavis" /></div>
-            <div class="profile__header">
-                <div class="profile__account">
-                    <h4 class="profile__username">HendrickDaKiller</h4>
-                </div>
-                <div class="profile__edit"><a class="profile__button" href="#">Edit Profile</a></div>
-            </div>
-            <div class="profile__stats">
-                <div class="profile__stat">
-                    <div class="profile__icon profile__icon--gold"><i class="fas fa-wallet"></i></div>
-                    <div class="profile__value">47
-                        <div class="profile__key">Wallet Coins</div>
+    <header>
+       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('home') }}">RCL</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <!-- Add your navigation links here -->
                     </div>
                 </div>
-                <div class="profile__stat">
-                    <div class="profile__icon profile__icon--blue"><i class="fas fa-signal"></i></div>
-                    <div class="profile__value">357
-                        <div class="profile__key">Ranking</div>
-                    </div>
-                </div>
-                <div class="profile__stat">
-                    <div class="profile__icon profile__icon--pink"><i class="fas fa-heart"></i></div>
-                    <div class="profile__value">4
-                        <div class="profile__key">Games Played</div>
-                    </div>
+                <div class="navbar-text">
+                    Logged in as: <strong>{{ username }}</strong>
                 </div>
             </div>
-        </div>
-    </div>
+       </nav>
+    </header>
 
+    <main>
+        <section class="team-profile">
+            <h1>Team Profile</h1>
+            <div class="profile-details">
+                <img src="../static/images/team_logo.png" alt="Team Logo">
+                <div class="team-info">
+                    <h2>Team Name</h2>
+                    <p>League Position: #1</p>
+                    <p>Founded: 2020</p>
+                    <!-- More team details here -->
+                </div>
+            </div>
+            <div class="team-stats">
+                <h3>Statistics</h3>
+                <!-- Team statistics content here -->
+            </div>
+            <div class="team-roster">
+                <h3>Roster</h3>
+                <!-- List of team members here -->
+            </div>
+        </section>
+    </main>
 
-
+    <footer>
+        <p>© 2023 RCL Competitive League</p>
+    </footer>
+</body>
+</html>
 </body>

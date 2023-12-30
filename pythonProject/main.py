@@ -25,7 +25,7 @@ mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
 auth_codes = {}
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def RCL_Login_Screen():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -49,13 +49,10 @@ def login():
 
     return render_template('RCL_Login_Screen.html')
 
+
 @app.route('/')
 def RCL_Home_Screen():
     return render_template('RCL_Home_Screen.html')
-
-@app.route('/login')
-def RCL_Login_Screen():
-    return render_template('RCL_Login_Screen.html')
 
 @app.route('/forgot-password')
 def RCL_Forgot_Password_Screen():
@@ -79,31 +76,190 @@ def RCL_Matches_Screen():
 
 @app.route('/player-profile')
 def RCL_Player_Profile_Screen():
-    return render_template('RCL_Player_Profile_Screen.html')
+    # Check if a user is logged in
+    if 'username' in session:
+        # Fetch additional data if needed
+        username = session['username']
+
+        # Example: Fetching additional user data from the database
+        # ... (Your database logic here)
+
+        # Render the profile page with the username
+        return render_template('RCL_Player_Profile_Screen.html', username=username)
+    else:
+        # If no user is logged in, redirect to the login page or another appropriate page
+        return redirect(url_for('RCL_Home_Screen.html'))
 
 @app.route('/player-ranking')
 def RCL_Player_Ranking_Screen():
-    return render_template('RCL_Player_Ranking_Screen.html')
+    conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+    cursor = conn.cursor()
 
-@app.route('/recruitment-centre')
-def RCL_Recruitment_Centre_Screen():
-    return render_template('RCL_Recruitment_Centre_Screen.html')
+    # Fetching data from Players_Dim table
+    cursor.execute("SELECT ID, Name, TeamID, GamesPlayed, GamesWon, GamesLost, GamesDrawn, WinLostRatio, ID_Var, Ranking FROM Players_Dim")
+    players_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('RCL_Player_Ranking_Screen.html', players_data=players_data)
+
+@app.route('/recruitment-centre/', defaults={'team_id': None})
+@app.route('/recruitment-centre/<team_id>', methods=['GET', 'POST'])
+def RCL_Recruitment_Centre_Screen(team_id):
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    # Fetch team ranking
+    cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
+    team_ranking_row = cursor.fetchone()
+    if not team_ranking_row:
+        cursor.close()
+        conn.close()
+        return f"No team found with ID {team_id}", 404
+
+    team_ranking = team_ranking_row[0]
+    if team_ranking is None:
+        cursor.close()
+        conn.close()
+        return f"Team {team_id} has no ranking", 400
+
+    if request.method == 'POST':
+        player_id = request.form['player_id']
+        cursor.execute("SELECT Email FROM UserRegistration WHERE ID_Var = %s", (player_id,))
+        player_email_row = cursor.fetchone()
+        if not player_email_row:
+            return "Player not found", 404
+
+        player_email = player_email_row[0]
+        token = str(uuid.uuid4())
+        confirmation_link = f"http://yourwebsite.com/confirm_addition/{token}"
+        send_confirmation_email(player_email, confirmation_link)
+
+        auth_codes[token] = {'player_id': player_id, 'team_id': team_id, 'timestamp': datetime.now()}
+        return "Invitation sent to the player."
+
+    rank_range = 10
+    cursor.execute("""
+        SELECT p.ID_Var, p.Name, p.Ranking FROM Players_Dim p
+        WHERE p.ID_Var NOT IN (
+            SELECT Player_ID FROM TeamPlayers WHERE Team_ID = %s
+        ) AND p.Ranking BETWEEN %s AND %s
+    """, (team_id, team_ranking - rank_range, team_ranking + rank_range))
+    available_players = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('RCL_Recruitment_Centre_Screen.html', 
+                           available_players=available_players, 
+                           team_id=team_id)
+
 
 @app.route('/my-account')
 def RCL_My_Account_Screen():
     return render_template('RCL_My_Account_Screen.html')
 
-@app.route('/team-management')
-def RCL_Team_Management_Screen():
-    return render_template('RCL_Team_Management_Screen.html')
+
+@app.route('/team-management/<team_id>/', defaults={'team_id': None}, methods=['GET', 'POST'])
+#@app.route('/team-management/<team_id>', methods=['GET', 'POST'])
+def RCL_Team_Management_Screen(team_id):
+    # Redirect to login if no user is logged in
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        username = session['username']
+
+        # Connect to your database
+        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        # Verify if the logged-in user is the captain of the team
+        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+        user_id = cursor.fetchone()[0]
+
+        cursor.execute("SELECT CaptainID FROM Teams_Dim WHERE ID = %s", (team_id,))
+        team_info = cursor.fetchone()
+
+        if team_info is None or team_info[0] != user_id:
+            cursor.close()
+            conn.close()
+            return "You do not have permission to manage this team."
+
+        # Fetch current team players
+        cursor.execute("SELECT tp.TeamPlayer_ID, tp.Team_ID, tp.Player_ID, u.Email, pd.Name FROM TeamPlayers tp "
+                       "JOIN UserRegistration u ON tp.Player_ID = u.ID_Var "
+                       "JOIN Players_Dim pd ON tp.Player_ID = pd.ID_Var "
+                       "WHERE tp.Team_ID = %s", (team_id,))
+        current_team_players = cursor.fetchall()
+
+        # Fetch all players for the dropdown
+        cursor.execute("SELECT ID_Var, Name FROM Players_Dim")
+        all_players = cursor.fetchall()
+
+        if request.method == 'POST':
+            action = request.form['action']
+
+            if action == 'add':
+                player_id = request.form['player_id']
+
+                # Fetch player email
+                cursor.execute("SELECT Email FROM UserRegistration WHERE ID_Var = %s", (player_id,))
+                user_email = cursor.fetchone()[0]
+
+                # Generate a unique token
+                token = str(uuid.uuid4())
+                auth_codes[token] = {'player_id': player_id, 'team_id': team_id, 'timestamp': datetime.now()}
+
+                # Send confirmation email
+                confirmation_link = f"http://127.0.0.1:5000/confirm_addition/{token}"
+                send_confirmation_email(user_email, confirmation_link)
+
+            elif action == 'remove':
+                team_player_id = request.form['player_id']
+                cursor.execute("DELETE FROM TeamPlayers WHERE TeamPlayer_ID = %s", (team_player_id,))
+                cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers - 1 WHERE ID = %s", (team_id,))
+
+            elif action == 'change_name':
+                new_name = request.form['new_name']
+                cursor.execute("UPDATE Teams_Dim SET Name = %s WHERE ID = %s", (new_name, team_id))
+
+            conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return render_template('RCL_Team_Management_Screen.html', team_id=team_id, current_team_players=current_team_players, all_players=all_players)
+
+    except Exception as e:
+        # Handle exceptions
+        print(f"An error occurred: {str(e)}")
+        return "An error occurred while trying to manage the team."
+
+
+
 
 @app.route('/team-profile')
 def RCL_Team_Profile_Screen():
     return render_template('RCL_Team_Profile_Screen.html')
-
 @app.route('/team-ranking')
 def RCL_Team_Ranking_Screen():
-    return render_template('RCL_Team_Ranking_Screen.html')
+    conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    # Fetching data from the relevant table (assuming it's Teams_Dim)
+    cursor.execute("SELECT ID, Name, CaptainID, CoCaptainID, NumOfPlayers, GamesPlayed, GamesWon, GamesLost, GamesDrawn, WinLostRatio, Ranking FROM Teams_Dim ORDER BY Ranking")
+    teams_data = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return render_template('RCL_Team_Ranking_Screen.html', teams_data=teams_data)
+
 
 @app.route('/subscription')
 def RCL_Subcription_Screen():

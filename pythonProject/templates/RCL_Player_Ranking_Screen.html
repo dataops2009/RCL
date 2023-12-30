@@ -70,49 +70,84 @@
         </div>
     </nav>
     </header>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCL Player Rankings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        .player-rankings {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .player-rankings h1 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        .player-rankings table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .player-rankings th, .player-rankings td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .player-rankings tr:hover {
+            background-color: #f2f2f2;
+        }
+        .highlighted {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+  
     <main class="container">
         <section class="player-rankings">
             <h1>Player Rankings</h1>
             <table class="table">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Rank</th>
-                        <th>Player Name</th>
-                        <th>Team</th>
-                        <th>Points</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Team ID</th>
+                        <th>Games Played</th>
                         <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Draws</th>
+                        <th>Win-Loss Ratio</th>
+                        <th>Player ID</th>
+                        <th>Ranking</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="highlighted">
-                        <td>1</td>
-                        <td>Alice Smith</td>
-                        <td>Team Zenith</td>
-                        <td>150</td>
-                        <td>30</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Bob Johnson</td>
-                        <td>Team Nova</td>
-                        <td>145</td>
-                        <td>28</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Charlie Davis</td>
-                        <td>Team Alpha</td>
-                        <td>140</td>
-                        <td>27</td>
-                    </tr>
-                    <!-- More rows here -->
+                    {% for player in players_data %}
+                        <tr>
+                            <td>{{ player[0] }}</td>
+                            <td>{{ player[1] }}</td>
+                            <td>{{ player[2] }}</td>
+                            <td>{{ player[3] }}</td>
+                            <td>{{ player[4] }}</td>
+                            <td>{{ player[5] }}</td>
+                            <td>{{ player[6] }}</td>
+                            <td>{{ player[7] }}</td>
+                            <td>{{ player[8] }}</td>
+                            <td>{{ player[9] }}</td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
     </main>
-
-    <!-- Footer -->
-    <!-- Existing Footer Here -->
+    <!-- Footer Content -->
 </body>
 </html>

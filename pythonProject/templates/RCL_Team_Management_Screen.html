@@ -39,46 +39,59 @@
     </div>
 </nav>
     </header>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Management</title>
+</head>
+<body>
+    <h1>Team Management</h1>
+    <p>Team ID: {{ team_id }}</p>
 
-    <main>
-        <!-- Main content for Team Management -->
-        <section class="team-management">
-            <h1>Manage Your Team</h1>
-            <div class="roster-management">
-                <h2>Roster Management</h2>
-                <!-- Functionality to add/remove players, view player stats, etc. -->
-                <!-- Example: List of current team members -->
-                <ul class="team-roster">
-                    <!-- Dynamically populate team members -->
-                    <li>Player 1</li>
-                    <li>Player 2</li>
-                    <!-- More players -->
-                </ul>
-                <!-- Add/Remove Player Form -->
-                <!-- Example: Form to add a new player -->
-                <form action="path_to_add_player" method="post">
-                    <label for="playerName">Player Name:</label>
-                    <input type="text" id="playerName" name="playerName">
-                    <button type="submit">Add Player</button>
+    <h2>Current Team Players</h2>
+    <ul>
+        {% for team_player_id, team_id, player_id, player_email, player_name in current_team_players %}
+            <li>
+                {{ player_name }} ({{ player_email }})
+                <form method="post" id="remove-form-{{ team_player_id }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="player_id" value="{{ team_player_id }}">
+                    <button type="button" onclick="removePlayer('{{ team_player_id }}')">Remove</button>
+                
                 </form>
-            </div>
-            <div class="strategy-section">
-                <h2>Team Strategy</h2>
-                <!-- Section to discuss and plan team strategies -->
-                <p>Discuss team strategies here or link to a strategy planning tool.</p>
-            </div>
-            <div class="schedule-section">
-                <h2>Training Schedule</h2>
-                <!-- Schedule management for training and matches -->
-                <p>Manage and view your team's training schedule.</p>
-            </div>
-            <!-- Additional management features as needed -->
-        </section>
-    </main>
+            </li>
+        {% endfor %}
+    </ul>
 
-    <footer>
-        <!-- Footer content -->
-        <p>© 2023 RCL Competitive League</p>
-    </footer>
+    <h2>All Players</h2>
+    <form method="post">
+        <select name="player_id">
+            {% for player_id, player_name in all_players %}
+                <option value="{{ player_id }}">{{ player_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" name="action" value="add">
+        <button type="submit">Add Player</button>
+    </form>
+
+    <h2>Change Team Name</h2>
+    <form method="post">
+        <input type="text" name="new_name" placeholder="New Team Name">
+        <input type="hidden" name="action" value="change_name">
+        <button type="submit">Change Name</button>
+    </form>
+
+    <script>
+        // JavaScript function to refresh the page
+        function refreshPage() {
+            location.reload(); // Reload the current page
+        }
+
+        // JavaScript function to remove a player and refresh the page
+        function removePlayer(playerId) {
+            const form = document.getElementById(`remove-form-${playerId}`);
+            form.submit(); // Submit the form to remove the player
+        }
+    </script>
 </body>
 </html>

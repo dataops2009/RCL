@@ -72,6 +72,10 @@
 
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- Navbar Content -->
+    </nav>
 
     <main class="container">
         <section class="team-rankings">
@@ -81,38 +85,29 @@
                     <tr>
                         <th>Rank</th>
                         <th>Team Name</th>
-                        <th>Points</th>
+                        <th>Games Played</th>
                         <th>Wins</th>
                         <th>Losses</th>
+                        <th>Draws</th>
+                        <th>Win-Loss Ratio</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Alpha Team</td>
-                        <td>150</td>
-                        <td>30</td>
-                        <td>5</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Beta Squad</td>
-                        <td>140</td>
-                        <td>28</td>
-                        <td>7</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Gamma Warriors</td>
-                        <td>130</td>
-                        <td>25</td>
-                        <td>10</td>
-                    </tr>
-                    <!-- Add more rows as needed -->
+                    {% for team in teams_data %}
+                        <tr>
+                            <td>{{ team[10] }}</td> <!-- Ranking -->
+                            <td>{{ team[1] }}</td> <!-- Team Name -->
+                            <td>{{ team[5] }}</td> <!-- Games Played -->
+                            <td>{{ team[6] }}</td> <!-- Wins -->
+                            <td>{{ team[7] }}</td> <!-- Losses -->
+                            <td>{{ team[8] }}</td> <!-- Draws -->
+                            <td>{{ team[9] }}</td> <!-- Win-Loss Ratio -->
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </section>
     </main>
-
 </body>
+
 </html>
