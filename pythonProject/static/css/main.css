@@ -182,4 +182,111 @@ html {
     background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background color */
     backdrop-filter: blur(1000px); /* The value can be adjusted to increase or decrease the blur effect */
 }
+
+/* Existing CSS */
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: linear-gradient(#141e30, #243b55);
+}
+
+/* Additional Existing Styles ... */
+
+/* Esports League Theme Enhancements */
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  color: #ffffff;
+}
+
+a {
+  color: #0095ff;
+}
+
+a:hover {
+  color: #00d1ff;
+}
+
+/* Navigation Bar */
+.navbar {
+  background-color: #111;
+  border-bottom: 3px solid #0095ff;
+}
+
+.navbar-brand, .navbar-nav .nav-link {
+  color: #ffffff;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #00d1ff;
+}
+
+/* Main Content */
+.main-content {
+  padding: 20px;
+}
+
+/* League, Team, Player Sections */
+.league, .team, .player {
+  background-color: #262626;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.league h1, .team h1, .player h1 {
+  color: #00d1ff;
+  text-align: center;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid #0095ff;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #111;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #1a1a1a;
+}
+
+/* Footer */
+footer {
+  background-color: #111;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Retaining Unique Background for .bg-dark */
+.bg-dark {
+  background-image: url('../images/bg_test.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(1000px);
 }

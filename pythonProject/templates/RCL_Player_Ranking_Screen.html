@@ -4,53 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCL Player Rankings</title>
-    <link rel="stylesheet" href="../static/css/your_stylesheet.css"> <!-- Update the path to your CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <!-- Main Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!-- Additional Styles for Rankings -->
+    <style>
+        .player-rankings {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .player-rankings h1 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        .player-rankings table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .player-rankings th, .player-rankings td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .player-rankings tr:hover {
+            background-color: #f2f2f2;
+        }
+        .highlighted {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <!-- Navigation bar -->
-        <nav>
-            <a href="RCL_Home_Screen.html">Home</a>
-            <a href="RCL_League_Screen.html">League</a>
-            <a href="RCL_Team_Ranking_Screen.html">Team Rankings</a>
-            <!-- Additional navigation links as needed -->
-        </nav>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     </header>
 
-    <main>
-        <!-- Main content for Player Rankings -->
+    <main class="container">
         <section class="player-rankings">
             <h1>Player Rankings</h1>
-            <table>
-                <thead>
+            <table class="table">
+                <thead class="thead-dark">
                     <tr>
                         <th>Rank</th>
                         <th>Player Name</th>
                         <th>Team</th>
                         <th>Points</th>
                         <th>Wins</th>
-                        <!-- Other columns as needed -->
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example row (replicate and update for each player) -->
-                    <tr>
+                    <tr class="highlighted">
                         <td>1</td>
-                        <td>John Doe</td>
-                        <td>Alpha Team</td>
-                        <td>120</td>
-                        <td>25</td>
-                        <!-- Other details -->
+                        <td>Alice Smith</td>
+                        <td>Team Zenith</td>
+                        <td>150</td>
+                        <td>30</td>
                     </tr>
-                    <!-- Additional rows for other players -->
+                    <tr>
+                        <td>2</td>
+                        <td>Bob Johnson</td>
+                        <td>Team Nova</td>
+                        <td>145</td>
+                        <td>28</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Charlie Davis</td>
+                        <td>Team Alpha</td>
+                        <td>140</td>
+                        <td>27</td>
+                    </tr>
+                    <!-- More rows here -->
                 </tbody>
             </table>
         </section>
     </main>
 
-    <footer>
-        <!-- Footer content -->
-        <p>© 2023 RCL Competitive League</p>
-    </footer>
+    <!-- Footer -->
+    <!-- Existing Footer Here -->
 </body>
 </html>

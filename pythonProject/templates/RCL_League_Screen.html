@@ -4,17 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCL League</title>
-    <link rel="stylesheet" href="../static/css/your_stylesheet.css"> <!-- Update the path to your CSS file -->
+    <!-- Bootstrap CSS (from CDN for simplicity) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Inline Custom CSS -->
+    <style>
+        .league {
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .league-details, .league-standings {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            padding: 15px;
+        }
+        .league h1, .league h2, .league h3 {
+            text-align: center;
+            color: #343a40;
+        }
+        .league p {
+            text-align: justify;
+            padding: 0 15px;
+        }
+        /* Additional styling as needed */
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <header>
-        <!-- Navigation bar -->
-        <nav>
-            <a href="RCL_Home_Screen.html">Home</a>
-            <a href="RCL_Player_Ranking_Screen.html">Player Rankings</a>
-            <a href="RCL_Team_Ranking_Screen.html">Team Rankings</a>
-            <!-- Additional navigation links as needed -->
-        </nav>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
+                    <a class="nav-item nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     </header>
 
     <main>
