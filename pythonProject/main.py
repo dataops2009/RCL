@@ -625,6 +625,37 @@ def send_confirmation_email(email, link):
     return result.status_code
 
 
+@app.route('/confirm_addition/<token>')
+def confirm_addition(token):
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    # Verify token and add player to the team
+    if token in auth_codes and datetime.now() - auth_codes[token]['timestamp'] < timedelta(hours=24):
+        player_id = auth_codes[token]['player_id']
+        team_id = auth_codes[token]['team_id']
+
+        team_player_id = generate_team_player_iid(cursor)
+        # Add player to the team
+        cursor.execute("INSERT INTO TeamPlayers (TeamPlayer_ID, Team_ID, Player_ID) VALUES (%s,%s, %s)", (team_player_id, team_id, player_id))
+        cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers + 1 WHERE ID = %s", (team_id,))
+        conn.commit()
+
+        # Optionally, remove token from auth_codes if it shouldn't be reused
+        del auth_codes[token]
+
+        message = "Player successfully added to the team."
+    else:
+        message = "Invalid or expired token."
+
+    cursor.close()
+    conn.close()
+
+    return message  # You can replace this with a redirect or a template rendering
+
 
 
 def generate_team_player_iid(cursor):
