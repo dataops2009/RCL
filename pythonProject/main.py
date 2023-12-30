@@ -277,7 +277,16 @@ def RCL_Team_Management_Screen():
                 except Exception as e:
                     print(f"Error adding notification: {e}")
 
-            # Rest of your code for 'remove' and 'change_name' actions
+            elif action == 'remove':
+                team_player_id = request.form['player_id']
+                cursor.execute("DELETE FROM TeamPlayers WHERE TeamPlayer_ID = %s", (team_player_id,))
+                cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers - 1 WHERE ID = %s", (team_id,))
+
+            elif action == 'change_name':
+                new_name = request.form['new_name']
+                cursor.execute("UPDATE Teams_Dim SET Name = %s WHERE ID = %s", (new_name, team_id))
+
+
 
             conn.commit()
 
