@@ -142,10 +142,8 @@ def RCL_Player_Ranking_Screen():
     conn.close()
 
     return render_template('RCL_Player_Ranking_Screen.html', players_data=players_data)
-
-@app.route('/recruitment-centre/', defaults={'team_id': None})
-@app.route('/recruitment-centre/<team_id>', methods=['GET', 'POST'])
-def RCL_Recruitment_Centre_Screen(team_id):
+@app.route('/recruitment-centre/', methods=['GET', 'POST'])
+def RCL_Recruitment_Centre_Screen():
     # Redirect to login if no user is logged in
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -167,11 +165,11 @@ def RCL_Recruitment_Centre_Screen(team_id):
             return "User not found", 404
         user_id = user_id_row[0]
 
-        # Fetch Team_ID from TeamPlayers table
-        cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+        # Check if the user is a captain
+        cursor.execute("SELECT ID FROM Teams_Dim WHERE CaptainID = %s", (user_id,))
         team_id_row = cursor.fetchone()
         if team_id_row is None:
-            return "No team associated with the user", 404
+            return "You are not a captain of any team.", 404
         team_id = team_id_row[0]
 
         # Fetch team ranking
@@ -220,47 +218,15 @@ def RCL_Recruitment_Centre_Screen(team_id):
                            team_id=team_id)
 
 
-
-@app.route('/confirm_addition/<token>')
-def confirm_addition(token):
-    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
-                           user='rcldeveloper',
-                           password='media$2009',
-                           database='rcldevelopmentdatabase')
-    cursor = conn.cursor()
-
-    # Verify token and add player to the team
-    if token in auth_codes and datetime.now() - auth_codes[token]['timestamp'] < timedelta(hours=24):
-        player_id = auth_codes[token]['player_id']
-        team_id = auth_codes[token]['team_id']
-
-        team_player_id = generate_team_player_iid(cursor)
-        # Add player to the team
-        cursor.execute("INSERT INTO TeamPlayers (TeamPlayer_ID, Team_ID, Player_ID) VALUES (%s,%s, %s)", (team_player_id, team_id, player_id))
-        cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers + 1 WHERE ID = %s", (team_id,))
-        conn.commit()
-
-        # Optionally, remove token from auth_codes if it shouldn't be reused
-        del auth_codes[token]
-
-        message = "Player successfully added to the team."
-    else:
-        message = "Invalid or expired token."
-
-    cursor.close()
-    conn.close()
-
-    return message  # You can replace this with a redirect or a template rendering
-
 @app.route('/my-account')
 def RCL_My_Account_Screen():
     return render_template('RCL_My_Account_Screen.html')
 
    
 
-@app.route('/RCL_Team_Management_Screen/', defaults={'team_id': None})
-@app.route('/RCL_Team_Management_Screen/<team_id>', methods=['GET', 'POST'])
-def RCL_Team_Management_Screen(team_id):
+
+@app.route('/RCL_Team_Management_Screen/', methods=['GET', 'POST'])
+def RCL_Team_Management_Screen():
     # Redirect to login if no user is logged in
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -272,17 +238,18 @@ def RCL_Team_Management_Screen(team_id):
         conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
         cursor = conn.cursor()
 
-        # Verify if the logged-in user is the captain of the team
+        # Fetch the user's ID_Var
         cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
         user_id = cursor.fetchone()[0]
 
-        cursor.execute("SELECT CaptainID FROM Teams_Dim WHERE ID = %s", (team_id,))
-        team_info = cursor.fetchone()
+        # Check if the user is a captain
+        cursor.execute("SELECT ID FROM Teams_Dim WHERE CaptainID = %s", (user_id,))
+        team_id = cursor.fetchone()
 
-        if team_info is None or team_info[0] != user_id:
+        if team_id is None:
             cursor.close()
             conn.close()
-            return "You do not have permission to manage this team."
+            return "You are not a captain of any team."
 
         # Fetch current team players
         cursor.execute("SELECT tp.TeamPlayer_ID, tp.Team_ID, tp.Player_ID, u.Email, pd.Name FROM TeamPlayers tp "
@@ -314,10 +281,6 @@ def RCL_Team_Management_Screen(team_id):
                 confirmation_link = f"http://127.0.0.1:5000/confirm_addition/{token}"
                 send_confirmation_email(user_email, confirmation_link)
 
-
-
-                #notification_message = f"You have been invited to join the team with ID {team_id}. Please check your email for the confirmation link."
-                #notification_manager.add_notification(player_id, notification_message)
                 try:
                     notification_message = f"You have been invited to join the team with ID {team_id}. Please check your email for the confirmation link."
                     notification_manager.add_notification(player_id, notification_message)
@@ -326,15 +289,7 @@ def RCL_Team_Management_Screen(team_id):
                 except Exception as e:
                     print(f"Error adding notification: {e}")
 
-
-            elif action == 'remove':
-                team_player_id = request.form['player_id']
-                cursor.execute("DELETE FROM TeamPlayers WHERE TeamPlayer_ID = %s", (team_player_id,))
-                cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers - 1 WHERE ID = %s", (team_id,))
-
-            elif action == 'change_name':
-                new_name = request.form['new_name']
-                cursor.execute("UPDATE Teams_Dim SET Name = %s WHERE ID = %s", (new_name, team_id))
+            # Rest of your code for 'remove' and 'change_name' actions
 
             conn.commit()
 
@@ -347,6 +302,7 @@ def RCL_Team_Management_Screen(team_id):
         # Handle exceptions
         print(f"An error occurred: {str(e)}")
         return "An error occurred while trying to manage the team."
+
 
 
 @app.route('/team-profile')
