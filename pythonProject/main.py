@@ -4,6 +4,8 @@ from flask import Flask, render_template, redirect, url_for, request, render_tem
 import pymssql
 from flask import Flask, render_template, redirect, url_for, request, render_template_string, session
 from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
+
 from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
@@ -20,6 +22,7 @@ app.secret_key = '0123456789abcdef0123456789abcdef'
 api_key = '0f502cb98eda788b78d88b0d79feae51'
 api_secret = '690bd92e04f6e062c52d10afa0966c3f'
 mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+
 
 # Simulated database for storing auth codes and timestamps
 
@@ -217,14 +220,14 @@ def confirm_addition(token):
 def RCL_My_Account_Screen():
     return render_template('RCL_My_Account_Screen.html')
 
-@app.route('/team-management/<team_id>/', defaults={'team_id': None}, methods=['GET', 'POST'])
+    #RCL_Team_Management_Screen
+
+@app.route('/RCL_Team_Management_Screen/', defaults={'team_id': None})
+@app.route('/RCL_Team_Management_Screen/<team_id>', methods=['GET', 'POST'])
 def RCL_Team_Management_Screen(team_id):
     # Redirect to login if no user is logged in
     if 'username' not in session:
         return redirect(url_for('login'))
-
-    if not team_id:
-        team_id = 'TD-1003'
 
     try:
         username = session['username']
@@ -240,67 +243,61 @@ def RCL_Team_Management_Screen(team_id):
         cursor.execute("SELECT CaptainID FROM Teams_Dim WHERE ID = %s", (team_id,))
         team_info = cursor.fetchone()
 
-        # Debugging statements
-        print(f"user_id: {user_id}")
-        print(f"team_info: {team_info}")
-
-        if team_info is not None and team_info[0] == user_id:
-            # User has permission to manage the team
-
-            # Fetch current team players
-            cursor.execute("SELECT tp.TeamPlayer_ID, tp.Team_ID, tp.Player_ID, u.Email, pd.Name FROM TeamPlayers tp "
-                           "JOIN UserRegistration u ON tp.Player_ID = u.ID_Var "
-                           "JOIN Players_Dim pd ON tp.Player_ID = pd.ID_Var "
-                           "WHERE tp.Team_ID = %s", (team_id,))
-            current_team_players = cursor.fetchall()
-
-            # Fetch all players for the dropdown
-            cursor.execute("SELECT ID_Var, Name FROM Players_Dim")
-            all_players = cursor.fetchall()
-
-            if request.method == 'POST':
-                action = request.form['action']
-
-                if action == 'add':
-                    player_id = request.form['player_id']
-
-                    # Fetch player email
-                    cursor.execute("SELECT Email FROM UserRegistration WHERE ID_Var = %s", (player_id,))
-                    user_email = cursor.fetchone()[0]
-
-                    # Generate a unique token
-                    token = str(uuid.uuid4())
-                    auth_codes[token] = {'player_id': player_id, 'team_id': team_id, 'timestamp': datetime.now()}
-
-                    # Send confirmation email
-                    confirmation_link = f"http://127.0.0.1:5000/confirm_addition/{token}"
-                    send_confirmation_email(user_email, confirmation_link)
-
-                elif action == 'remove':
-                    team_player_id = request.form['player_id']
-                    cursor.execute("DELETE FROM TeamPlayers WHERE TeamPlayer_ID = %s", (team_player_id,))
-                    cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers - 1 WHERE ID = %s", (team_id,))
-
-                elif action == 'change_name':
-                    new_name = request.form['new_name']
-                    cursor.execute("UPDATE Teams_Dim SET Name = %s WHERE ID = %s", (new_name, team_id))
-
-            conn.commit()
-
-            cursor.close()
-            conn.close()
-
-            return render_template('RCL_Team_Management_Screen.html', team_id=team_id, current_team_players=current_team_players, all_players=all_players)
-        else:
+        if team_info is None or team_info[0] != user_id:
             cursor.close()
             conn.close()
             return "You do not have permission to manage this team."
+
+        # Fetch current team players
+        cursor.execute("SELECT tp.TeamPlayer_ID, tp.Team_ID, tp.Player_ID, u.Email, pd.Name FROM TeamPlayers tp "
+                       "JOIN UserRegistration u ON tp.Player_ID = u.ID_Var "
+                       "JOIN Players_Dim pd ON tp.Player_ID = pd.ID_Var "
+                       "WHERE tp.Team_ID = %s", (team_id,))
+
+        current_team_players = cursor.fetchall()
+
+        # Fetch all players for the dropdown
+        cursor.execute("SELECT ID_Var, Name FROM Players_Dim")
+        all_players = cursor.fetchall()
+
+        if request.method == 'POST':
+            action = request.form['action']
+
+            if action == 'add':
+                player_id = request.form['player_id']
+
+                # Fetch player email
+                cursor.execute("SELECT Email FROM UserRegistration WHERE ID_Var = %s", (player_id,))
+                user_email = cursor.fetchone()[0]
+
+                # Generate a unique token
+                token = str(uuid.uuid4())
+                auth_codes[token] = {'player_id': player_id, 'team_id': team_id, 'timestamp': datetime.now()}
+
+                # Send confirmation email
+                confirmation_link = f"http://127.0.0.1:5000/confirm_addition/{token}"
+                send_confirmation_email(user_email, confirmation_link)
+
+            elif action == 'remove':
+                team_player_id = request.form['player_id']
+                cursor.execute("DELETE FROM TeamPlayers WHERE TeamPlayer_ID = %s", (team_player_id,))
+                cursor.execute("UPDATE Teams_Dim SET NumOfPlayers = NumOfPlayers - 1 WHERE ID = %s", (team_id,))
+
+            elif action == 'change_name':
+                new_name = request.form['new_name']
+                cursor.execute("UPDATE Teams_Dim SET Name = %s WHERE ID = %s", (new_name, team_id))
+
+            conn.commit()
+
+        cursor.close()
+        conn.close()
+
+        return render_template('RCL_Team_Management_Screen.html', team_id=team_id, current_team_players=current_team_players, all_players=all_players)
 
     except Exception as e:
         # Handle exceptions
         print(f"An error occurred: {str(e)}")
         return "An error occurred while trying to manage the team."
-
 
 
 @app.route('/team-profile')
@@ -591,7 +588,7 @@ def my_teams():
         # Render a template with the teams
         return render_template('my_teams.html', teams=teams_managed)
 
-        
+
     except Exception as e:
         # Handle exceptions
         print(f"An error occurred: {str(e)}")
