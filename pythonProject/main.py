@@ -107,57 +107,78 @@ def RCL_Player_Ranking_Screen():
 @app.route('/recruitment-centre/', defaults={'team_id': None})
 @app.route('/recruitment-centre/<team_id>', methods=['GET', 'POST'])
 def RCL_Recruitment_Centre_Screen(team_id):
+    # Redirect to login if no user is logged in
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+
+    # Connect to your database
     conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
                            user='rcldeveloper',
                            password='media$2009',
                            database='rcldevelopmentdatabase')
     cursor = conn.cursor()
 
-    # Fetch team ranking
-    cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
-    team_ranking_row = cursor.fetchone()
-    if not team_ranking_row:
+    try:
+        # Fetch ID_Var from UserRegistration table
+        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+        user_id_row = cursor.fetchone()
+        if user_id_row is None:
+            return "User not found", 404
+        user_id = user_id_row[0]
+
+        # Fetch Team_ID from TeamPlayers table
+        cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+        team_id_row = cursor.fetchone()
+        if team_id_row is None:
+            return "No team associated with the user", 404
+        team_id = team_id_row[0]
+
+        # Fetch team ranking
+        cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
+        team_ranking_row = cursor.fetchone()
+        if not team_ranking_row:
+            return f"No team found with ID {team_id}", 404
+
+        team_ranking = team_ranking_row[0]
+        if team_ranking is None:
+            return f"Team {team_id} has no ranking", 400
+
+        if request.method == 'POST':
+            player_id = request.form['player_id']
+            cursor.execute("SELECT Email FROM UserRegistration WHERE ID_Var = %s", (player_id,))
+            player_email_row = cursor.fetchone()
+            if not player_email_row:
+                return "Player not found", 404
+
+            player_email = player_email_row[0]
+            token = str(uuid.uuid4())
+            confirmation_link = f"http://yourwebsite.com/confirm_addition/{token}"
+            send_confirmation_email(player_email, confirmation_link)
+
+            auth_codes[token] = {'player_id': player_id, 'team_id': team_id, 'timestamp': datetime.now()}
+            return "Invitation sent to the player."
+
+        rank_range = 10
+        cursor.execute("""
+            SELECT p.ID_Var, p.Name, p.Ranking FROM Players_Dim p
+            WHERE p.ID_Var NOT IN (
+                SELECT Player_ID FROM TeamPlayers WHERE Team_ID = %s
+            ) AND p.Ranking BETWEEN %s AND %s
+        """, (team_id, team_ranking - rank_range, team_ranking + rank_range))
+        available_players = cursor.fetchall()
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return "An error occurred while trying to access the recruitment centre."
+    finally:
         cursor.close()
         conn.close()
-        return f"No team found with ID {team_id}", 404
-
-    team_ranking = team_ranking_row[0]
-    if team_ranking is None:
-        cursor.close()
-        conn.close()
-        return f"Team {team_id} has no ranking", 400
-
-    if request.method == 'POST':
-        player_id = request.form['player_id']
-        cursor.execute("SELECT Email FROM UserRegistration WHERE ID_Var = %s", (player_id,))
-        player_email_row = cursor.fetchone()
-        if not player_email_row:
-            return "Player not found", 404
-
-        player_email = player_email_row[0]
-        token = str(uuid.uuid4())
-        confirmation_link = f"http://yourwebsite.com/confirm_addition/{token}"
-        send_confirmation_email(player_email, confirmation_link)
-
-        auth_codes[token] = {'player_id': player_id, 'team_id': team_id, 'timestamp': datetime.now()}
-        return "Invitation sent to the player."
-
-    rank_range = 10
-    cursor.execute("""
-        SELECT p.ID_Var, p.Name, p.Ranking FROM Players_Dim p
-        WHERE p.ID_Var NOT IN (
-            SELECT Player_ID FROM TeamPlayers WHERE Team_ID = %s
-        ) AND p.Ranking BETWEEN %s AND %s
-    """, (team_id, team_ranking - rank_range, team_ranking + rank_range))
-    available_players = cursor.fetchall()
-
-    cursor.close()
-    conn.close()
 
     return render_template('RCL_Recruitment_Centre_Screen.html', 
                            available_players=available_players, 
                            team_id=team_id)
-
 
 
 
@@ -473,15 +494,6 @@ def verify():
         return "Authentication code expired or invalid."
 
 
-def generate_id(cursor, table_name, id_column_name, prefix, start_id=1001):
-    cursor.execute(f"SELECT MAX({id_column_name}) FROM {table_name}")
-    last_id = cursor.fetchone()[0]
-
-    if last_id is None or '-' not in last_id:
-        return f"{prefix}-{start_id}"
-
-    number = int(last_id.split('-')[1]) + 1
-    return f"{prefix}-{number}"
 
 # @app.route('/CreateTeam', methods=['GET', 'POST'])
 # def create_team():
@@ -542,6 +554,82 @@ def generate_id(cursor, table_name, id_column_name, prefix, start_id=1001):
 #     conn.close()
 
 #     return render_template('RCL_CreateTeam_Screen.html', player_list=player_list)
+
+
+
+@app.route('/my-teams')
+def my_teams():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        username = session['username']
+
+        # Connect to your database
+        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        # Get the user's ID_Var
+        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+        user_id = cursor.fetchone()
+        if user_id is None:
+            raise Exception("User not found")
+
+        user_id = user_id[0]
+
+        # Query to find teams where the user is the captain
+        cursor.execute("SELECT ID, Name FROM Teams_Dim WHERE CaptainID = %s", (user_id,))
+        teams_managed = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        # Check if the user has teams
+        if not teams_managed:
+            return "You are not managing any teams."
+
+        # Render a template with the teams
+        return render_template('my_teams.html', teams=teams_managed)
+
+        
+    except Exception as e:
+        # Handle exceptions
+        print(f"An error occurred: {str(e)}")
+        return "An error occurred while trying to fetch your teams."
+
+
+
+
+def send_confirmation_email(email, link):
+    data = {
+        'Messages': [
+            {
+                "From": {"Email": "prabbi.kandola@hotmail.co.uk", "Name": "Prabbiooo"},
+                "To": [{"Email": email}],
+                "Subject": "Team Addition Confirmation",
+                "TextPart": f"Please confirm your addition to the team by clicking this link: {link}"
+            }
+        ]
+    }
+    result = mailjet.send.create(data=data)
+    return result.status_code
+
+
+
+
+def generate_team_player_iid(cursor):
+    # Fetch the latest TeamPlayer_ID
+    cursor.execute("SELECT MAX(TeamPlayer_ID) FROM TeamPlayers")
+    last_id_row = cursor.fetchone()[0]
+
+    if last_id_row:
+        # Extract the numeric part and increment
+        last_id_number = int(last_id_row.split('-')[1])
+        new_id_number = last_id_number + 1
+    else:
+        new_id_number = 1001  # Start from 1001 if no IDs are present
+
+    return f"TP-{new_id_number}"
 
 if __name__ == '__main__':
     app.run(debug=True)
