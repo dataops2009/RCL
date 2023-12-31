@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash
 import random
 from datetime import datetime
 
+# More abstraction in terms of what SQL information is passed to the class
+
 class SignUpManager:
     def __init__(self):
         self.conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')

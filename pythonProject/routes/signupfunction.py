@@ -10,6 +10,7 @@ import random
 from datetime import datetime, timedelta
 from classes.RegistrationClass import SignUpManager
 from classes.NotificationClass import NotificationManager
+from config import auth_codes
 
 
 # Mailjet setup
