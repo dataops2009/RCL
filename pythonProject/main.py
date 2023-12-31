@@ -1,3 +1,5 @@
+
+
 from flask import Flask, render_template, redirect, url_for, request, render_template_string, session
 import pymssql
 from flask import Flask, render_template, redirect, url_for, request, render_template_string
@@ -8,6 +10,7 @@ import uuid
 from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
+
 from classes.RegistrationClass import SignUpManager
 
 from routes.signupfunction import signup_function
@@ -21,6 +24,14 @@ from routes.recruitment_function import recruitment_function
 from routes.team_management_function import team_management_function
 from routes.create_team_function import create_team_function
 from routes.team_ranking_function import team_ranking_function
+from config import auth_codes
+from config import auth_codes
+# main.py or other files
+#from config import notification_manager
+
+from classes.NotificationClass import NotificationManager
+
+notification_manager = NotificationManager()
 
 app = Flask(__name__)
 
@@ -39,9 +50,10 @@ mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
 # This is where we are keeping track of notifications which are added over time - the user has notifications appear however this will turn into an inbox which they can view
 # Therefore this wll aa get extended to a table within azure
-manager = NotificationManager()
-notifications = {}
-notification_manager = NotificationManager()
+#manager = NotificationManager()
+
+#notifications = {}
+#notification_manager = NotificationManager()
 
 
 ##################################################################################################################################################################################################
@@ -317,6 +329,7 @@ def send_confirmation_email(email, link):
 
 @app.route('/confirm_addition/<token>')
 def confirm_addition(token):
+    #global auth_codes 
     conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
                            user='rcldeveloper',
                            password='media$2009',

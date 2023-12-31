@@ -1,6 +1,5 @@
 
-from flask import session, redirect, url_for, render_template
-import pymssql  # Assuming you're using this for database operations
+from flask import Flask, render_template, redirect, url_for, request, render_template_string, session
 import pymssql
 from flask import Flask, render_template, redirect, url_for, request, render_template_string
 import pymssql
@@ -10,6 +9,64 @@ import uuid
 from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
+
+
+#from main import notification_manager
+
+from config import auth_codes
+from config import notification_manager
+
+
+# main.py or other files
+#from config import auth_codes
+
+#from main import notification_manager
+
+
+
+# Mailjet setup
+api_key = '0f502cb98eda788b78d88b0d79feae51'
+api_secret = '690bd92e04f6e062c52d10afa0966c3f'
+mailjet = Client(auth=(api_key, api_secret), version='v3.1')
+
+
+
+def send_confirmation_email(email, link):
+    data = {
+        'Messages': [
+            {
+                "From": {"Email": "prabbi.kandola@hotmail.co.uk", "Name": "Prabbiooo"},
+                "To": [{"Email": email}],
+                "Subject": "Team Addition Confirmation",
+                "TextPart": f"Please confirm your addition to the team by clicking this link: {link}"
+            }
+        ]
+    }
+    result = mailjet.send.create(data=data)
+    return result.status_code
+
+
+def send_auth_code_email(email, auth_code):
+    data = {
+      'Messages': [
+        {
+          "From": {
+            "Email": "prabbi.kandola@hotmail.co.uk",  # Use a verified sender email
+            "Name": "Prabjot"
+          },
+          "To": [
+            {
+              "Email": email,
+              "Name": "Recipient Name"
+            }
+          ],
+          "Subject": "Your Authentication Code",
+          "TextPart": f"Hello, your authentication code is: {auth_code}"
+        }
+      ]
+    }
+    result = mailjet.send.create(data=data)
+    return result.status_code
 
 def team_management_function():
     # Redirect to login if no user is logged in

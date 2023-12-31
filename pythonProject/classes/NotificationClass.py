@@ -10,7 +10,11 @@ from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
 
-#from notifications import NotificationManager
+#from config import auth_codes, notification_manager
+
+# main.py or other files
+#from config import notification_manager
+
 
 class Notification:
     def __init__(self, message, timestamp):
@@ -35,3 +39,5 @@ class NotificationManager:
 
 # Global instance of the NotificationManager
 notification_manager = NotificationManager()
+
+#notifications = {}

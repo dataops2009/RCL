@@ -2,10 +2,15 @@ from flask import session, redirect, url_for, render_template
 from classes.NotificationClass import NotificationManager
 import pymssql
 
+# main.py or other files
+from config import auth_codes
 
-notifications = {}
+from config import notification_manager
 
-notification_manager = NotificationManager()
+
+#notifications = {}
+
+#notification_manager = NotificationManager()
 
 def notifications_function():
     if 'username' not in session:
