@@ -1,83 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCL Player Rankings</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <!-- Main Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <!-- Additional Styles for Rankings -->
-    <style>
-        .player-rankings {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .player-rankings h1 {
-            text-align: center;
-            color: #343a40;
-            margin-bottom: 20px;
-        }
-        .player-rankings table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .player-rankings th, .player-rankings td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        .player-rankings tr:hover {
-            background-color: #f2f2f2;
-        }
-        .highlighted {
-            font-weight: bold;
-            color: #007bff;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    </header>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCL Player Rankings</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% extends 'RCL_Main_Template.html' %}
+ 
+{% block title %}
+   Player RankingS-
+{% endblock %}
+ 
+{% block header %}
+<!-- Header Content -->
+{% endblock %}
+ 
+{% block content %}
+    <head>
     <style>
         .player-rankings {
             padding: 20px;
@@ -151,3 +83,8 @@
     <!-- Footer Content -->
 </body>
 </html>
+{% endblock %}
+ 
+{% block footer %}
+<!-- Footer Content -->
+{% endblock %}

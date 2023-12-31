@@ -9,9 +9,13 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 <title>{% block title %}{% endblock %}</title>
 </head>
+{% include 'RCL_Header_Template.html' %}
+</head>
 <body>
-    {% include 'RCL_Header_Template.html' %}
+
     {% block content %}
+    <!-- HTML content here -->
     {% endblock %}
+
     {% include 'RCL_Footer_Template.html' %}
 </html>

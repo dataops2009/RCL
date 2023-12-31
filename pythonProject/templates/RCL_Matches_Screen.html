@@ -1,48 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCL Matches</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <!-- Main Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-<body>
-    <header>
-  
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    </header>
+{% extends 'RCL_Main_Template.html' %}
 
-    <main>
+{% block title %}
+Matches
+{% endblock %}
+   <main>
         <!-- Main content for Matches -->
         <section class="matches">
             <h1>Upcoming Matches</h1>
@@ -58,10 +19,10 @@
             </div>
         </section>
     </main>
-
-    <footer>
-        <!-- Footer content -->
-        <p>© 2023 RCL Competitive League</p>
-    </footer>
 </body>
-</html>
+
+{% endblock %}
+
+{% block footer %}
+
+{% endblock %}
