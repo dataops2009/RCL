@@ -1,0 +1,76 @@
+<!-- Start of the navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <!-- Brand/logo -->
+        <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
+        <!-- Button for toggling the navigation bar on small screens -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+     
+        <!-- Navigation links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <!-- Home link -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+                </li>
+
+                <!-- If the user is not logged in, show login, forgot password, and sign up links -->
+                {% if 'username' not in session %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
+                    </li>
+                {% else %}
+                    <!-- Add more links for logged-in users -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                {% endif %}
+                <!-- Additional links can go here -->
+            </ul>
+        </div>
+    </div>
+</nav>

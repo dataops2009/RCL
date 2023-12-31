@@ -1,115 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCL Team Rankings</title>
-    <!-- Bootstrap CSS (from CDN for simplicity) -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <!-- Inline Custom CSS -->
-    <style>
-        .team-rankings {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .team-rankings h1 {
-            text-align: center;
-            color: #343a40;
-            margin-bottom: 20px;
-        }
-        .team-rankings table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .team-rankings th, .team-rankings td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        .team-rankings tr:hover {
-            background-color: #f2f2f2;
-        }
-    </style>
-    <!-- Main Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-<body>
-    <header>
-
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
-                    <a class="nav-item nav-link" href="{{ url_for('show_notifications') }}">Notifications</a>
-                
-                </div>
-            </div>
-        </div>
-    </nav>
-    </header>
-
-</head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <!-- Navbar Content -->
-    </nav>
-
-    <main class="container">
-        <section class="team-rankings">
-            <h1>Team Rankings</h1>
-            <table class="table">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Rank</th>
-                        <th>Team Name</th>
-                        <th>Games Played</th>
-                        <th>Wins</th>
-                        <th>Losses</th>
-                        <th>Draws</th>
-                        <th>Win-Loss Ratio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team in teams_data %}
-                        <tr>
-                            <td>{{ team[10] }}</td> <!-- Ranking -->
-                            <td>{{ team[1] }}</td> <!-- Team Name -->
-                            <td>{{ team[5] }}</td> <!-- Games Played -->
-                            <td>{{ team[6] }}</td> <!-- Wins -->
-                            <td>{{ team[7] }}</td> <!-- Losses -->
-                            <td>{{ team[8] }}</td> <!-- Draws -->
-                            <td>{{ team[9] }}</td> <!-- Win-Loss Ratio -->
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    </main>
-</body>
-
-</html>
+{% extends 'RCL_Main_Template.html' %}
+ 
+{% block title %}
+RCL - Team Rankings
+{% endblock %}
+ 
+{% block header %}
+<!-- Header Content -->
+{% endblock %}
+ 
+{% block content %}
+<main class="container">
+    <h1 style="font-size: 75pt;">Welcome, {{ username }}</h1>
+    <section class="team-rankings">
+        <h1>Team Rankings</h1>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Rank</th>
+                    <th>Team Name</th>
+                    <th>Games Played</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Draws</th>
+                    <th>Win-Loss Ratio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in teams_data %}
+                <tr>
+                    <td>{{ team[10] }}</td> <!-- Ranking -->
+                    <td>{{ team[1] }}</td> <!-- Team Name -->
+                    <td>{{ team[5] }}</td> <!-- Games Played -->
+                    <td>{{ team[6] }}</td> <!-- Wins -->
+                    <td>{{ team[7] }}</td> <!-- Losses -->
+                    <td>{{ team[8] }}</td> <!-- Draws -->
+                    <td>{{ team[9] }}</td> <!-- Win-Loss Ratio -->
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</main>
+{% endblock %}
+ 
+{% block footer %}
+<!-- Footer Content -->
+{% endblock %}

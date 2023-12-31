@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<!-- Main Custom CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    {% include 'RCL_Header_Template.html' %}
+    {% block content %}
+    {% endblock %}
+    {% include 'RCL_Footer_Template.html' %}
+</html>
