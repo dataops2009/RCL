@@ -31,11 +31,14 @@ teams = []
 # Add your secret key for session management
 app.secret_key = '0123456789abcdef0123456789abcdef'
 
-# Mailjet setup
+# Mailjet setup - This allows you to send an email to the user and this is our API information
 api_key = '0f502cb98eda788b78d88b0d79feae51'
 api_secret = '690bd92e04f6e062c52d10afa0966c3f'
 mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
+
+# This is where we are keeping track of notifications which are added over time - the user has notifications appear however this will turn into an inbox which they can view
+# Therefore this wll aa get extended to a table within azure
 manager = NotificationManager()
 notifications = {}
 notification_manager = NotificationManager()
@@ -68,11 +71,15 @@ def show_notifications():
 
 ##################################################################################################################################################################################################
 
+# The user can log into their page http://127.0.0.1:5000/login
+
 @app.route('/login', methods=['GET', 'POST'])
 def RCL_Login_Screen():
-    return login_function()
+    return login_function() # Call the fucntion from loginfunction.py within Routes
 
 #################################################################################################################################################################################################
+
+# The user can log out of their page - http://127.0.0.1:5000/logout
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -84,27 +91,31 @@ def logout():
 
 ##############################################################################################################################################################################################
 
+# The user can view their profile - http://127.0.0.1:5000/player-profile
+
 @app.route('/player-profile')
 def RCL_Player_Profile_Screen():
-    return player_profile_function()
+    return player_profile_function() # Call the function from player_profile_function.py within routes
 
 ############################################################################################################################################################################################
 
-# This is how you can see all the player rankings seen within Players_Dim
+# This is how you can see all the player rankings seen within Players_Dim - http://127.0.0.1:5000/player-ranking
 
-@app.route('/player-ranking')
+@app.route('/player-ranking') 
 def RCL_Player_Ranking_Screen():
     return player_ranking_function() # This can be seen within the routes/player_ranking_function
 
 ###############################################################################################################################################################################################
-# This is how you can see all of the players which can get recruited to team
+# This is how you can see all of the players which can get recruited to team - http://127.0.0.1:5000/recruitment-center
+
+# This is done through recommending other players who are closely matched in ranking
 
 @app.route('/recruitment-centre/', methods=['GET', 'POST'])
 def RCL_Recruitment_Centre_Screen():
     return recruitment_function() # This can be seen in routes/recruitment_function
 
 ###############################################################################################################################################################################################
-#You can create a team
+#You can create a team - http://127.0.0.1:5000/RCL_Create_Team_Scren
 
 @app.route('/RCL_Create_Team_Screen/', methods=['GET', 'POST'])
 def RCL_Create_Team_Screen():
@@ -124,6 +135,7 @@ def RCL_Team_Ranking_Screen():
     return team_ranking_function() # This can be seen in routes/team_ranking_function
 
 ############################################################################################################################################################################################
+# Sends an email to the user to reset their password through mailjet
 
 @app.route('/forgot-password')
 def RCL_Forgot_Password_Screen():
@@ -173,7 +185,76 @@ def subscribe():
 
 
 
-############################################ HANDLING AUTHENTICATION ###########################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################ DO NOT DELETE  #################################################################################################################################################
 
 @app.route('/verify', methods=['POST'])
 def verify():
@@ -217,48 +298,6 @@ def send_auth_code_email(email, auth_code):
     }
     result = mailjet.send.create(data=data)
     return result.status_code
-
-
-@app.route('/my-teams')
-def my_teams():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-
-    try:
-        username = session['username']
-
-        # Connect to your database
-        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
-        cursor = conn.cursor()
-
-        # Get the user's ID_Var
-        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
-        user_id = cursor.fetchone()
-        if user_id is None:
-            raise Exception("User not found")
-
-        user_id = user_id[0]
-
-        # Query to find teams where the user is the captain
-        cursor.execute("SELECT ID, Name FROM Teams_Dim WHERE CaptainID = %s", (user_id,))
-        teams_managed = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
-
-        # Check if the user has teams
-        if not teams_managed:
-            return "You are not managing any teams."
-
-        # Render a template with the teams
-        return render_template('my_teams.html', teams=teams_managed)
-
-
-    except Exception as e:
-        # Handle exceptions
-        print(f"An error occurred: {str(e)}")
-        return "An error occurred while trying to fetch your teams."
-
 
 
 def send_confirmation_email(email, link):
@@ -308,7 +347,6 @@ def confirm_addition(token):
     return message  # You can replace this with a redirect or a template rendering
 
 
-
 def generate_team_player_iid(cursor):
     # Fetch the latest TeamPlayer_ID
     cursor.execute("SELECT MAX(TeamPlayer_ID) FROM TeamPlayers")
@@ -322,6 +360,65 @@ def generate_team_player_iid(cursor):
         new_id_number = 1001  # Start from 1001 if no IDs are present
 
     return f"TP-{new_id_number}"
+
+
+
+#################### EXAMPLE CODE ON HOW TO CREATE AND USE SESSIONS #######################################################################################################################################
+
+
+
+
+@app.route('/my-teams')
+def my_teams():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    try:
+        username = session['username']
+
+        # Connect to your database
+        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        # Get the user's ID_Var
+        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+        user_id = cursor.fetchone()
+        if user_id is None:
+            raise Exception("User not found")
+
+        user_id = user_id[0]
+
+        # Query to find teams where the user is the captain
+        cursor.execute("SELECT ID, Name FROM Teams_Dim WHERE CaptainID = %s", (user_id,))
+        teams_managed = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        # Check if the user has teams
+        if not teams_managed:
+            return "You are not managing any teams."
+
+        # Render a template with the teams
+        return render_template('my_teams.html', teams=teams_managed)
+
+
+    except Exception as e:
+        # Handle exceptions
+        print(f"An error occurred: {str(e)}")
+        return "An error occurred while trying to fetch your teams."
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
