@@ -61,7 +61,18 @@ mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 
 @app.route('/')
 def RCL_Home_Screen():
-    return render_template('RCL_Home_Screen.html')
+    username = session.get('username') # Read the username from the session if it's present
+    return render_template('RCL_Home_Screen.html',    username = username) # Pass the username to the 
+
+@app.route('/RCL_Main_Template')
+def RCL_Main_Template():
+    username = session.get('username') # Read the username from the session if it's present
+    return render_template('RCL_Main_Template.html',    username = username) # Pass the username to the template
+
+@app.route('/RCL_Header_Template')
+def RCL_Header_Template():
+    username = session.get('username')
+    return render_template('RCL_Header_Template.html',    username = username) # Pass the username to the template
 
 #################################################################################################################################################################################################
 # Sign up page e.g. http://127.0.0.1:5000/signup
