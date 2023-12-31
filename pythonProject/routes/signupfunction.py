@@ -8,8 +8,8 @@ import uuid
 from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
-from RegistrationClass import SignUpManager
-from NotificationClass import NotificationManager
+from classes.RegistrationClass import SignUpManager
+from classes.NotificationClass import NotificationManager
 
 
 # Mailjet setup

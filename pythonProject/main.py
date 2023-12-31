@@ -8,9 +8,10 @@ import uuid
 from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
-from RegistrationClass import SignUpManager
+from classes.RegistrationClass import SignUpManager
+
 from routes.signupfunction import signup_function
-from NotificationClass import NotificationManager
+from classes.NotificationClass import NotificationManager
 from routes.signupfunction import signup_function
 from routes.notificationsfunction import notifications_function
 from routes.loginfunction import login_function
@@ -88,31 +89,42 @@ def RCL_Player_Profile_Screen():
     return player_profile_function()
 
 ############################################################################################################################################################################################
+
+# This is how you can see all the player rankings seen within Players_Dim
+
 @app.route('/player-ranking')
 def RCL_Player_Ranking_Screen():
-    return player_ranking_function()
+    return player_ranking_function() # This can be seen within the routes/player_ranking_function
 
 ###############################################################################################################################################################################################
+# This is how you can see all of the players which can get recruited to team
+
 @app.route('/recruitment-centre/', methods=['GET', 'POST'])
 def RCL_Recruitment_Centre_Screen():
-    return recruitment_function()
+    return recruitment_function() # This can be seen in routes/recruitment_function
 
 ###############################################################################################################################################################################################
+#You can create a team
+
 @app.route('/RCL_Create_Team_Screen/', methods=['GET', 'POST'])
 def RCL_Create_Team_Screen():
-    return create_team_function()
+    return create_team_function() # This can be seen in Routes/Create_Team_Function.py
 
 ###############################################################################################################################################################################################
+#This allows a captain to manage their team - Teams_Dim, and the players within that table can be seen in TeamPlayers
+
 @app.route('/RCL_Team_Management_Screen/', methods=['GET', 'POST'])
 def RCL_Team_Management_Screen():
-    return team_management_function()
+    return team_management_function() # This can be seen in routes/team_management_function
 
 ##############################################################################################################################################################################################
+# This gives you the ranking of each of the teams, seen in the table Teams_Dim
 @app.route('/team-ranking')
 def RCL_Team_Ranking_Screen():
-    return team_ranking_function()
+    return team_ranking_function() # This can be seen in routes/team_ranking_function
 
 ############################################################################################################################################################################################
+
 @app.route('/forgot-password')
 def RCL_Forgot_Password_Screen():
     return render_template('RCL_Forgot_Password_Screen.html')
