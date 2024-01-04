@@ -1,4 +1,6 @@
 
+import flask
+from flask import Flask, request, redirect, url_for, render_template, flash, session
 
 from flask import Flask, render_template, redirect, url_for, request, render_template_string, session
 import pymssql
@@ -10,6 +12,8 @@ import uuid
 from mailjet_rest import Client
 import random
 from datetime import datetime, timedelta
+import uuid  
+
 
 from classes.RegistrationClass import SignUpManager
 
@@ -27,10 +31,24 @@ from routes.team_ranking_function import team_ranking_function
 from config import auth_codes
 from config import auth_codes
 # main.py or other files
-#from config import notification_manager
+from config import notification_manager
 
 from classes.NotificationClass import NotificationManager
+from classes.OCR_Score_ExtractorClass import OCRProcessor  #
 
+from classes.TournamentBuilderClass import Tournament
+from classes.TournamentManager import TournamentManager
+
+import io
+
+from PIL import Image
+import pytesseract
+
+#from classes.pythonscripts import generate_html_tables
+
+import uuid
+
+import re
 notification_manager = NotificationManager()
 
 app = Flask(__name__)
@@ -63,8 +81,208 @@ mailjet = Client(auth=(api_key, api_secret), version='v3.1')
 def RCL_Home_Screen():
     return render_template('RCL_Home_Screen.html')
 
-#################################################################################################################################################################################################
-# Sign up page e.g. http://127.0.0.1:5000/signup
+###########################################################################################################################################################################################
+@app.route('/hello')
+def index():
+    conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, tName FROM Tournaments_Dim')  # Modify this query as needed
+    tournaments = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('index.html', tournaments=tournaments)
+
+def generate_match_id():
+    return str(uuid.uuid4())
+
+@app.route('/success')
+def success():
+    # Add your logic for the success page here
+    return "Success Page"
+
+
+
+@app.route('/uploading', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'})
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'})
+
+    points = request.form.get('points')  # points should be a string like "x1,y1;x2,y2;x3,y3;x4,y4"
+    points = [tuple(map(int, p.split(','))) for p in points.split(';')]
+
+    image_data = np.fromstring(file.read(), np.uint8)
+    ocr_processor = OCRProcessor(image_data)
+    ocr_processor.preprocess(points)
+    results = ocr_processor.process_and_extract_text()
+    return jsonify(results)
+
+
+def extract_team_points_and_winner(text):
+    # Use regular expression to find the pattern "CAPITALIZATION1 POINTS1 POINTS2 CAPITALIZATION2"
+    pattern = r'([A-Z]+)\s+(\d+)\s+(\d+)\s+([A-Z]+)'
+    matches = re.findall(pattern, text)
+    
+    team_names = []
+    points1_values = []
+    points2_values = []
+    
+    for match in matches:
+        team_name1 = match[0]
+        points1 = int(match[1])
+        points2 = int(match[2])
+        team_name2 = match[3]
+        
+        team_names.append((team_name1, team_name2))
+        points1_values.append(points1)
+        points2_values.append(points2)
+    
+    # Determine the winner based on points
+    winner = None
+    if points1_values and points2_values:
+        if points1_values[0] > points2_values[0]:
+            winner = team_names[0][0]
+        elif points2_values[0] > points1_values[0]:
+            winner = team_names[0][1]
+        else:
+            winner = "DRAW"
+    
+    return team_names, points1_values, points2_values, winner
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    text_extracted = False
+    extracted_text = ""
+    stage = None
+    tournament_id = None
+    final_stage_data = []
+    team_points = ""
+    team1_points = ""
+
+
+    if request.method == 'POST':
+        conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+        cursor = conn.cursor()
+        tournament_id = request.form.get('tournament')
+        stage = request.form.get('stage')
+        team1_id = request.form.get('team1')
+        team2_id = request.form.get('team2')
+        team1_score = request.form.get('team1_score')
+        team2_score = request.form.get('team2_score')
+        winner_team_id = request.form.get('winner_team_id')
+        match_id = request.form.get('match_id')
+
+    if 'file' in request.files:
+
+            file = request.files['file']
+
+            if file and file.filename != '':
+               
+                text_extracted = True
+                image_data = file.read()
+
+                # Create an instance of OCRProcessor and perform OCR
+                ocr_processor = OCRProcessor(image_data)
+                ocr_results = ocr_processor.perform_ocr()
+                extracted_text = ' '.join([res[1] for res in ocr_results])
+
+                #max_length = 250  # Set this to the max length allowed by your database column
+                #extracted_text = extracted_text[:max_length]
+
+                team_names, points1_values, points2_values, winner = extract_team_points_and_winner(extracted_text)
+               # Create a string to display team points
+                team_points_str = f"Team1: {points1_values}, Team2: {winner}, Team2: {points2_values} "
+
+                flash('Extracted team points:\n' + team_points_str)
+
+                # Update the database with OCR extracted text
+
+                try:
+                    cursor.execute(
+                        "UPDATE MatchProgression SET Team1Score=%s, Team2Score=%s, WinnerTeamID=%s, WHERE MatchID=%s",
+                        (points1_values, points2_values, winner_team_id,  match_id)
+                    )
+                    conn.commit()
+                except Exception as e:
+                    print("Database Error:", e)
+                finally:
+                    conn.close()
+                return redirect(url_for('upload'))
+
+
+    elif request.method == 'GET':
+        tournament_id = request.args.get('tournament')
+        stage = request.args.get('stage')
+
+        if stage == 'initial':
+            conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+            cursor = conn.cursor()
+            cursor.execute("SELECT MatchID, Team1ID, Team2ID FROM MatchProgression WHERE TournamentID=%s AND Stage='initial'", (tournament_id,))
+            stage_data = [{'match_id': row[0], 'team1_id': row[1], 'team2_id': row[2]} for row in cursor.fetchall()]
+            conn.close()
+            return render_template('initial_stage.html', initial_stage_data=stage_data)
+
+        if stage == 'final':
+            conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+            cursor = conn.cursor()
+            tournament_manager = TournamentManager(conn)
+            initial_winners = tournament_manager.get_initial_winners(tournament_id)
+            final_matches = tournament_manager.pair_up_winners(initial_winners)
+
+            for match in final_matches:
+                match_id = generate_match_id()
+                cursor.execute(
+                    "INSERT INTO MatchProgression (MatchID, TournamentID, Stage, Team1ID, Team2ID) VALUES (%s, %s, 'final', %s, %s)",
+                    (match_id, tournament_id, match[0], match[1])
+                )
+
+                final_stage_data.append({
+                    'match_id': match_id, 
+                    'tournament_id': tournament_id, 
+                    'team1_id': match[0], 
+                    'team2_id': match[1]
+                })
+
+            conn.commit()
+            conn.close()
+            return render_template('final_stage.html', final_stage_data=final_stage_data)
+
+        elif stage == 'lastMatch':
+            conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
+            cursor = conn.cursor()
+            cursor.execute("SELECT TOP 2 WinnerTeamID FROM MatchProgression WHERE TournamentID=%s AND Stage='final' ORDER BY MatchID DESC", (tournament_id,))
+            last_winners = cursor.fetchall()
+
+            if len(last_winners) == 2:
+                match_id = generate_match_id()
+                team1_id = last_winners[0][0]
+                team2_id = last_winners[1][0]
+
+                cursor.execute(
+                    "INSERT INTO MatchProgression (MatchID, TournamentID, Stage, Team1ID, Team2ID) VALUES (%s, %s, 'lastMatch', %s, %s)",
+                    (match_id, tournament_id, team1_id, team2_id)
+                )
+
+                conn.commit()
+                conn.close()
+
+                final_stage_data = [{
+                    'match_id': match_id,
+                    'tournament_id': tournament_id,
+                    'team1_id': team1_id,
+                    'team2_id': team2_id
+                }]
+                return render_template('final_stage.html', final_stage_data=final_stage_data)
+            else:
+                conn.close()
+                return render_template('no_matches.html')
+
+    return render_template('upload.html', tournament_id=tournament_id, stage=stage)
+
 
 @app.route('/signup')
 def RCL_Signup_Screen():
@@ -100,6 +318,9 @@ def logout():
 
     # Redirect to the login page or any other page you prefer
     return redirect(url_for('login'))
+
+##############################################################################################################################################################################################################
+
 
 ##############################################################################################################################################################################################
 
@@ -155,9 +376,6 @@ def RCL_Forgot_Password_Screen():
 
 ###################################################################### THE FUNCTIONALITY NEEDS TO GET COMPLETED ############################################################################
 
-@app.route('/tournament')
-def RCL_Tournament_Screen():
-    return render_template('RCL_Tournament_Screen.html')
 
 @app.route('/league')
 def RCL_League_Screen():
