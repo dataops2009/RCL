@@ -19,7 +19,8 @@ jobs:
           python-version: '3.11'
 
       - name: Change to Python project directory
-        run: cd RCL/pythonProject
+        run: |
+          cd ./RCL/pythonProject
 
       - name: Create and start virtual environment
         run: |
