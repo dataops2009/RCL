@@ -28,7 +28,7 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip -r ../release.zip . -x venv/\*
+        run: zip -r release.zip . -x venv/\*
         working-directory: ./pythonProject
 
       - name: Upload artifact for deployment jobs
@@ -51,7 +51,7 @@ jobs:
           name: python-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: unzip python-app/release.zip -d .
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
