@@ -58,3 +58,4 @@ jobs:
           app-name: 'hellotesting321'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BE621BC88A3E415AADDBE9CD621E1A6F }}
+          startup-command: 'python main.py'  # Use 'python main.py' as the startup command
