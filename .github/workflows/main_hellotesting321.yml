@@ -19,8 +19,7 @@ jobs:
           python-version: '3.11'
 
       - name: Change to Python project directory
-        run: |
-          cd ./RCL/pythonProject
+        run: cd pythonProject
 
       - name: Create and start virtual environment
         run: |
@@ -33,13 +32,13 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip . -x venv/\*
+        run: zip -r ../release.zip . -x venv/\*
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
           name: python-app
-          path: release.zip
+          path: ../release.zip
 
   deploy:
     runs-on: ubuntu-latest
