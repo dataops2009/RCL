@@ -3,8 +3,6 @@ from werkzeug.security import generate_password_hash
 import random
 from datetime import datetime
 
-# More abstraction in terms of what SQL information is passed to the class
-
 class SignUpManager:
     def __init__(self):
         self.conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
@@ -17,23 +15,29 @@ class SignUpManager:
         except Exception as e:
             print(f"Error in user_exists: {e}")
             return False  # or handle the error as appropriate
-
+            
     def register_user(self, username, email, password):
         try:
             if self.user_exists(email):
                 return {"status": "error", "message": "Email already registered"}
 
             with self.conn.cursor() as cursor:
-                # Generate user ID
+                # Retrieve the maximum ID_Var
                 cursor.execute("SELECT MAX(ID_Var) FROM Players_Dim")
                 last_id_row = cursor.fetchone()
-                new_id = "PL-1000" if not last_id_row or not last_id_row[0] else f"PL-{int(last_id_row[0].split('-')[1]) + 1}"
+                
+                # Increment the ID
+                if last_id_row and last_id_row[0]:
+                    last_id_num = int(last_id_row[0].split('-')[1])
+                    new_id = f"PL-{last_id_num + 1}"
+                else:
+                    new_id = "PL-1000"  # Default ID if no IDs are present in the table
 
                 # Hash the password
                 hashed_password = generate_password_hash(password)
 
                 # Insert user
-                cursor.execute("INSERT INTO UserRegistration (Username, Email, Password) VALUES (%s, %s, %s)", (username, email, hashed_password))
+                cursor.execute("INSERT INTO UserRegistration (ID_Var , Username, Email, Password) VALUES (%s, %s, %s, %s)", (new_id, username, email, hashed_password))
                 cursor.execute("INSERT INTO Players_Dim (ID_Var, Name) VALUES (%s, %s)", (new_id, username))
 
                 self.conn.commit()
@@ -54,4 +58,3 @@ class SignUpManager:
                 self.conn.close()
             except Exception as e:
                 print(f"Error closing connection: {e}")
-

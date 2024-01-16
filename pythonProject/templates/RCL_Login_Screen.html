@@ -1,56 +1,94 @@
-{% extends 'RCL_Main_Template.html' %}
- 
-{% block title %}
-    Login
-{% endblock %}
- 
-{% block header %}
-<!-- Header Content -->
-{% endblock %}
- 
-{% block content %}
-<body>
-    <div class="container">
-        <h1>User Profile</h1>
-        <!-- Other profile information goes here -->
-    </div>
-    <div class="login-box">
-        <h2>BREACHERS VR</h2>
-        <div id="breacherlogo">
-            <img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}">
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        .background {
+            background: linear-gradient(135deg, rgba(102, 116, 234, 1) 0%, rgba(94, 74, 104, 1) 100%);
+        }
+        .form-container {
+            backdrop-filter: blur(10px);
+            background-color: rgba(17, 25, 40, 0.75);
+            margin-left: 16%; /* Adjust based on sidebar width */
+            flex-grow: 1; /* Ensures it takes up the remaining width */
+        }
+        .input-field {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar {
+            width: 16%; /* Adjust as needed */
+            background-color: #1a1a1a;
+            height: 100vh;
+            position: fixed; /* Sidebar remains fixed during scroll */
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: white; /* Adjust link color as needed */
+            text-decoration: none; /* Removes underline from links */
+            border-bottom: 1px solid #333;
+        }
+        .sidebar ul li a:hover {
+            background-color: #333; /* Hover effect */
+        }
+    </style>
+</head>
+<body class="background font-roboto flex">
 
-        <!-- Update the action attribute to point to your login route -->
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul>
+            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-users"></i> Players</a></li>
+            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-users"></i> Teams</a></li>
+           
+        </ul>
+    </div>
+
+
+    <br>
+    <br>
+    <div class="form-container p-8 rounded-lg">
+        <!-- Sign Up Title -->
+        <h1 class="text-white text-2xl mb-4 text-center">Sign Up</h1>
+        <!-- Retain the form's action and method from the other code -->
         <form method="POST" action="{{ url_for('RCL_Login_Screen') }}" id="loginForm">
             <!-- Username field -->
-            <div class="user-box">
-                <input type="text" class="form-control" name="username" required>
-                <label for="username" class="form-label">Username</label>
+            <div class="mb-4">
+                <input type="text" id="username" name="username" placeholder="Username" class="input-field w-full p-2 rounded text-gray-300" required>
             </div>
             <!-- Password field -->
-            <div class="user-box">
-                <input type="password" class="form-control" name="password" required>
-                <label for="password" class="form-label">Password</label>
+            <div class="mb-4">
+                <input type="password" id="password" name="password" placeholder="Password" class="input-field w-full p-2 rounded text-gray-300" required>
             </div>
             <!-- Submit button -->
-            <a href="javascript:void(0);" onclick="document.getElementById('loginForm').submit();" class="styled-button">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                Login
-            </a>
-            <!-- Link for Forgot Password -->
-            <div class="signup-message">
-                <a href="#">Forgot your password?</a>
+            <div class="mb-4">
+                <button type="submit" class="w-full p-2 rounded bg-blue-600 text-white">Login</button>
             </div>
         </form>
-        <!-- Ensure this points to your sign-up route -->
+        <!-- Link for Forgot Password -->
+        <div class="mb-4">
+            <a href="#">Forgot your password?</a>
+        </div>
+        <!-- Link to Sign Up -->
         <p>Don't have an account? <a href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a></p>
     </div>
+
+    <script>
+        // Add any JavaScript functionality needed for your form here.
+    </script>
 </body>
-{% endblock %}
- 
-{% block footer %}
-  <!-- Footer Content -->
-  {% endblock %}
+</html>

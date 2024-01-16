@@ -1,0 +1,34 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Tournament</title>
+</head>
+<body>
+    <h2>Create New Tournament</h2>
+    <form action="/create_tournament" method="post">
+        <label for="name">Tournament Name:</label><br>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="start_date">Start Date:</label><br>
+        <input type="date" id="start_date" name="start_date" required><br>
+
+        <label for="end_date">End Date:</label><br>
+        <input type="date" id="end_date" name="end_date" required><br>
+
+        <label for="rank_lower_bound">Rank Lower Bound (0-50):</label><br>
+        <input type="number" id="rank_lower_bound" name="rank_lower_bound" min="0" max="50" required><br>
+
+        <label for="rank_upper_bound">Rank Upper Bound (50-100):</label><br>
+        <input type="number" id="rank_upper_bound" name="rank_upper_bound" min="50" max="100" required><br>
+
+        <label for="game_type">Game Type:</label><br>
+        <input type="text" id="game_type" name="game_type" required><br>
+
+        <label for="description">Tournament Description:</label><br>
+        <textarea id="description" name="description"></textarea><br>
+
+        <input type="submit" value="Create Tournament">
+    </form>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tournament Enrollments</title>
+</head>
+<body>
+    <h1>Tournaments List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Tournament Name</th>
+                <th>Duration (Days)</th>
+                <th>Prize Pool</th>
+                <th>Game Type</th>
+                <th>Enroll</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tournament in tournaments %}
+            <tr>
+                <td>{{ tournament.tName }}</td>
+                <td>{{ tournament.duration_days }}</td>
+                <td>{{ tournament.prize_pool }}</td>
+                <td>{{ tournament.game_type }}</td>
+                <td>
+                    {% if not is_user_enrolled(tournament.id) %}
+                        <form method="POST" action="/enroll/{{ tournament.id }}">
+                            <input type="submit" value="Enroll">
+                        </form>
+                    {% else %}
+                        <p>Already Enrolled</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

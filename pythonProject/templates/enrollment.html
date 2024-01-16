@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enrollment Page</title>
+</head>
+<body>
+    <h1>Enroll in a Tournament</h1>
+    
+    <form method="POST" action="/enroll">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="tournament_id">Tournament ID:</label>
+        <input type="text" id="tournament_id" name="tournament_id" required><br><br>
+        
+        <input type="submit" value="Enroll">
+    </form>
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>

@@ -1,102 +1,90 @@
-
-
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-
-<body>
-
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCL Team Profile</title>
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <!-- Main Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        .background {
+            background: linear-gradient(135deg, rgba(102, 116, 234, 1) 0%, rgba(94, 74, 104, 1) 100%);
+        }
+        .form-container {
+            backdrop-filter: blur(10px);
+            background-color: rgba(17, 25, 40, 0.75);
+            margin-left: 16%; /* Adjust based on sidebar width */
+            flex-grow: 1; /* Ensures it takes up the remaining width */
+        }
+        .input-field {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar {
+            width: 16%; /* Adjust as needed */
+            background-color: #1a1a1a;
+            height: 100vh;
+            position: fixed; /* Sidebar remains fixed during scroll */
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: white; /* Adjust link color as needed */
+            text-decoration: none; /* Removes underline from links */
+            border-bottom: 1px solid #333;
+        }
+        .sidebar ul li a:hover {
+            background-color: #333; /* Hover effect */
+        }
+    </style>
 </head>
-<body>
-    <header>
-       <!-- Navigation Bar -->
-       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
-                    <a class="nav-item nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
-                    <a class="nav-item nav-link" href="{{ url_for('show_notifications') }}">Notifications</a>
-                
-                </div>
-            </div>
-        </div>
-    </nav>
-    </header>
+<body class="background font-roboto flex">
 
-<div class="login-box">
-    <h2>BREACHERS VR</h2>
-    <div id="breacherlogo"><img src="{{ url_for('static', filename='images/BreachersLogo_Transparant.png') }}"></div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul>
+            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-users"></i> Players</a></li>
+            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-users"></i> Teams</a></li>
+           
+        </ul>
+    </div>
 
-    <!-- Updated form action, method, and id -->
-    <form action="{{ url_for('submit') }}" method="post" id="registerForm">
-        <!-- Username field -->
-        <div class="user-box">
-            <input type="text" class="form-control" id="username" name="username" required>
-            <label for="username" class="form-label">Username</label>
-        </div>
-        <!-- Email field -->
-        <div class="user-box">
-            <input type="email" class="form-control" id="email" name="email" required>
-            <label for="email" class="form-label">Email</label>
-        </div>
-        <!-- Password field -->
-        <div class="user-box">
-            <input type="password" class="form-control" id="password" name="password" required>
-            <label for="password" class="form-label">Password</label>
-        </div>
-        <!-- Confirm Password field -->
-        <div class="user-box">
-            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-            <label for="confirm_password" class="form-label">Confirm Password</label>
-        </div>
-        <!-- Submit button -->
-        <a href="javascript:void(0);" onclick="document.getElementById('registerForm').submit();" class="styled-button">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            Register
-        </a>
-        <!-- Link to Create Account (if needed) -->
-        <a href="#">
-            <span></span>
-            <span></span>
-            <span></span>
-            Create Account
-        </a>
-        <!-- Link for Forgot Password -->
-        <div class="signup-message">
-            <a href="#">Forgot your password?</a>
-        </div>
-    </form>
+
+<br>
+<br>
+     <div class="form-container p-8 rounded-lg">
+        <!-- Sign Up Title -->
+        <h1 class="text-white text-2xl mb-4 text-center">Sign Up</h1>
+<form action="{{ url_for('submit') }}" method="post" id="registerForm">
+<div class="mb-4">
+<input type="text" id="username" name="username" placeholder="Username" class="input-field w-full p-2 rounded text-gray-300" required>
+</div>
+<div class="mb-4">
+<input type="email" id="email" name="email" placeholder="Email" class="input-field w-full p-2 rounded text-gray-300" required>
+</div>
+<div class="mb-4">
+<input type="password" id="password" name="password" placeholder="Password" class="input-field w-full p-2 rounded text-gray-300" required>
+</div>
+<div class="mb-6">
+<input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" class="input-field w-full p-2 rounded text-gray-300" required>
+</div>
+<div class="mb-4">
+<button type="submit" class="w-full p-2 rounded bg-blue-600 text-white">Create your account</button>
+</div>
+</form>
 </div>
 
+<script>
+    // Add any JavaScript functionality needed for your form here.
+</script>
 </body>
+</html>
