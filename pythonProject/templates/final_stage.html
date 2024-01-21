@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Final Stage Match Results</title>
+</head>
+<body>
+    <h1>Final Stage Match Results</h1>
+    {% for match in final_stage_data %}
+        <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+            <input type="hidden" name="tournament" value="{{ match.tournament_id }}">
+            <input type="hidden" name="stage" value="final">
+            <input type="hidden" name="team1" value="{{ match.team1_id }}">
+            <input type="hidden" name="team2" value="{{ match.team2_id }}">
+            <input type="hidden" name="match_id" value="{{ match.match_id }}">
+
+            <p>Match: Team {{ match.team1_id }} vs Team {{ match.team2_id }}</p>
+            <label>Team 1 Score:</label>
+            <input type="number" name="team1_score" required><br><br>
+
+            <label>Team 2 Score:</label>
+            <input type="number" name="team2_score" required><br><br>
+
+            <label>Winner Team ID:</label>
+            <input type="string" name="winner_team_id" required><br><br>
+
+            <!-- Image upload field -->
+            <label>Upload Image:</label>
+            <input type="file" name="file" required><br><br>
+
+            <input type="submit" value="Submit Match Result">
+
+           
+        </form>
+    {% endfor %}
+</body><!DOCTYPE html>

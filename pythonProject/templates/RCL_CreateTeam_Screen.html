@@ -1,142 +1,210 @@
-{% extends 'RCL_Main_Template.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
 
-{% block title %}
-RCL - Breachers VR League & Tournaments
-{% endblock %}
-{% block header %}
-{% endblock %}
-{% block content %}
-    <h1>Create a Team</h1>
+</head>
+<script>
+    function toggleNav() {
+    var sidebar = document.getElementById("sidebar");
+    var burgerLines = document.querySelectorAll(".burger-line");
+    var items = document.querySelectorAll(".nav-opacity");
+    
+    if (sidebar.style.width === "250px") {
+    sidebar.style.width = "0";
+    burgerLines.forEach(line => {
+    line.style.backgroundColor = "white";
+    
+    });
+    items.forEach(item => {
+    item.classList.remove('active')
+    
+    });
+    } else {
+    sidebar.style.width = "250px";
+    burgerLines.forEach(line => {
+    line.style.backgroundColor = "white";
+    });
+    items.forEach(item => {
+    item.classList.add('active')
+    
+    });
+    }
+    }
+    document.getElementById('add_player_button').addEventListener('click', function() {
+            var allPlayersInput = document.getElementById('player_search_all');
+            var selectedPlayersSelect = document.getElementById('selected_players');
+            var option = document.createElement('option');
+            option.value = allPlayersInput.value;
+            option.text = allPlayersInput.value;
+            option.selected = true;
+            selectedPlayersSelect.appendChild(option);
+            allPlayersInput.value = ''; // Clear the input field after adding
+        });
+
+        document.getElementById('remove_player_button').addEventListener('click', function() {
+            var selectedPlayersSelect = document.getElementById('selected_players');
+            Array.from(selectedPlayersSelect.selectedOptions).forEach(option => {
+                selectedPlayersSelect.removeChild(option);
+            });
+        });
+</script>
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+    * 
+        body::before {
+        content: '';
+        ;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        /* background-image: url("RCL.png");
+        background-size: 20%; */
+        z-index: -1;
+    }
+        body {
+        font-family: 'Roboto', sans-serif;
+        /* background-image: url('bg_test.png'); */
+        background-color: #111111;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+
+    .burger-menu {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 1000;
+        border-radius: 2px;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px;
+    }
+
+    .burger-line {
+        width: 30px;
+        height: 3px;
+        background-color: white;
+        margin: 6px 0;
+        transition: 0.4s;
+    }
+
+    .sidebar {
+        height: 100%;
+        width: 0;
+       
+        z-index: 500;
+        top: 0;
+        right: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+
+    .sidebar a {
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 22px;
+        color: gray;
+        display: block;
+        transition: 0.15s;
+    }
+ 
+        
+</style>
+</head> 
+
+   <div style="display: flex; justify-content: center;">
+        <img src="static/images/RCL.png" alt="Girl in a jacket" width="250" height="300" style="position: relative; top: 100px">
+    </div>
+<body class="bg-[#1B1B1B] text-white">
+    <div class="burger-menu" onclick="toggleNav()">
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+    </div>
+   <div class="sidebar" id="sidebar">
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+        <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+
+    </div>
+
+    <H1 style = "text-align:center; top: 10px; position:fixed; font-size:20px; color:red"> Testers!! - Please ignore sidebar, will be added to the right , as well as the width of text boxes - (simple fixes for next iteration) </H1>
+
+
+
+
+<div class="container mx-auto p-4" style=" margin-top: -720px;right: 0px; left: 0px;">
+
+    <div class="grid grid-cols-1 gap-4 mb-4">
     <form action="/create-team" method="POST" id="create-team-form">
-        <label for="name">Team Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
+        <div class="text-center py-4 rounded-lg bg-gray-700">
+            <h1 class="text-4xl font-bold text-center text-white">Create Team</h1>
+        </div>
+        <br><br>
+        <div class="text-center py-2 rounded-lg bg-[90EE90] text-black">
+        <p>Captain:</p>
+        <p> {{ session['username'] }}</p>
+        </div>
+        <br><br>
+        <div class="text-center py-2 rounded-lg bg-gray-700">
+                <label for="name">Team Name:</label>
+                <br><br>
+                <input style type="text" id="name" name="name" required><br><br>
+            </div>
+        </div>
 
-        <!-- Displaying the logged-in user as the captain -->
-        <p>Captain: {{ session['username'] }}</p>
+        <div class="text-center py-2 rounded-lg bg-gray-700">
+        <label for="co_captain_search">Co-Captain:</label>
+        <br><br>
+            <input type="text" id="co_captain_search" list="co_captain_list" placeholder="Search for Co-Captain">
+            <datalist id="co_captain_list">
+                {% for player in player_list %}
+                    <option value="{{ player }}">{{ player }}</option>
+                {% endfor %}
+            </datalist>
+        </div>
+       
+        <br><br>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center py-4 rounded-lg bg-gray-700">
+                <h1>Choose Players</h1>
+                <label for="player_search_all">All Players:</label>
+                <input type="text" id="player_search_all" list="all_players_list" placeholder="Search for players">
+                <datalist id="all_players_list">
+                    {% for player in player_list %}
+                        <option value="{{ player }}">{{ player }}</option>
+                    {% endfor %}
+                </datalist>
+                <br><br>
+            </div>
+            <div class="text-center py-4 rounded-lg bg-gray-700">
+                <label>Selected Players:</label>
+                <select id="selected_players" name="selected_players[]" multiple required></select><br><br>
 
-        <label for="co_captain_id">Co-Captain ID:</label>
-        <input type="text" id="co-captain-search" placeholder="Search for Co-Captain and select"><br>
-        <select id="co-captain-list" name="co_captain" required>
-            <option value="" disabled selected>Select Co-Captain</option>
-            {% for player in player_list %}
-                <option value="{{ player }}">{{ player }}</option>
-            {% endfor %}
-        </select><br><br>
+                <button type="button" id="add_player_button" style="background-color: lightgreen; color: black;">Add Player</button>
 
-        <label for="all-players">All Players:</label>
-        <input type="text" id="player-search-all" placeholder="Search for players"><br>
-        <select id="all-players" name="all-players[]" multiple required>
-            {% for player in player_list %}
-                <option value="{{ player }}">{{ player }}</option>
-            {% endfor %}
-        </select><br><br>
+                <button type="button" id="remove_player_button" style="background-color: lightpink; color: black;">Remove Player</button>
+            </div>
+        </div>
 
-        <label>Selected Players:</label>
-        <input type="text" id="player-search-selected" placeholder="Search for players"><br>
-        <select id="selected-players" name="selected-players[]" multiple required></select><br><br>
-
-        <button type="button" id="add-player-button">Add Player</button>
-        <button type="button" id="remove-player-button">Remove Player</button><br><br>
-
-        <input type="submit" value="Create Team">
+         <div class="text-center py-4 rounded-lg bg-gray-700">
+            <input type="submit" value="Create Team">
+        </div>
     </form>
-
-    <script>
-        // JavaScript code to add and remove players and filter dropdown options
-        const addPlayerButton = document.getElementById("add-player-button");
-        const removePlayerButton = document.getElementById("remove-player-button");
-        const allPlayersDropdown = document.getElementById("all-players");
-        const selectedPlayersDropdown = document.getElementById("selected-players");
-        const captainDropdown = document.getElementById("captain-list");
-        const coCaptainDropdown = document.getElementById("co-captain-list");
-        const playerSearchAll = document.getElementById("player-search-all");
-        const playerSearchSelected = document.getElementById("player-search-selected");
-        const captainSearch = document.getElementById("captain-search");
-        const coCaptainSearch = document.getElementById("co-captain-search");
-
-        // Function to filter options in a dropdown based on the search input
-        function filterDropdown(dropdown, searchInput) {
-            const searchText = searchInput.value.toLowerCase();
-            const options = dropdown.options;
-            for (let i = 0; i < options.length; i++) {
-                const optionText = options[i].text.toLowerCase();
-                if (optionText.includes(searchText)) {
-                    options[i].style.display = "";
-                } else {
-                    options[i].style.display = "none";
-                }
-            }
-        }
-
-                function refreshPage() {
-            setTimeout(function() {
-                location.reload();
-            }, 1000); // Delay of 1 second before refreshing
-        }
-
-        // Function to add a player from the all players dropdown to the selected players dropdown
-        addPlayerButton.addEventListener("click", () => {
-            const selectedOptions = allPlayersDropdown.selectedOptions;
-            for (const option of selectedOptions) {
-                if (!Array.from(selectedPlayersDropdown.options).some(selectedOption => selectedOption.value === option.value)) {
-                    selectedPlayersDropdown.appendChild(option.cloneNode(true));
-                }
-            }
-        });
-
-        removePlayerButton.addEventListener("click", () => {
-    const selectedOptions = Array.from(selectedPlayersDropdown.selectedOptions);
-    const playerIds = selectedOptions.map(option => option.value);
-
-    fetch('/remove-players', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ playerIds: playerIds })
-    })
-    .then(response => {
-        if (response.ok) {
-            refreshPage();
-        } else {
-            console.error('Failed to remove players');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-
-        // Function to remove selected players from the selected players dropdown
-        removePlayerButton.addEventListener("click", () => {
-            const selectedOptions = selectedPlayersDropdown.selectedOptions;
-            for (const option of selectedOptions) {
-                selectedPlayersDropdown.removeChild(option);
-                
-            }
-         
-        });
-
-
-
-        // Add event listeners for filtering dropdown options
-        playerSearchAll.addEventListener("input", () => {
-            filterDropdown(allPlayersDropdown, playerSearchAll);
-        });
-
-        playerSearchSelected.addEventListener("input", () => {
-            filterDropdown(selectedPlayersDropdown, playerSearchSelected);
-        });
-
-        captainSearch.addEventListener("input", () => {
-            filterDropdown(captainDropdown, captainSearch);
-        });
-
-        coCaptainSearch.addEventListener("input", () => {
-            filterDropdown(coCaptainDropdown, coCaptainSearch);
-        });
-    </script>
-{% endblock %}
-
-{% block footer %}
-
-{% endblock %}
+    </div>
+    
+</div>
+</body>
+</html>

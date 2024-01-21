@@ -1,0 +1,392 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamer Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+        }
+        .profile-header {
+            background: linear-gradient(90deg, rgba(131, 58, 180, 1) 0%, rgba(253, 29, 29, 1) 50%, rgba(252, 176, 69, 1) 100%);
+        }
+        .achievement-card {
+            background-color: #242424;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .achievement-card:last-child {
+            margin-bottom: 0;
+        }
+        .leaderboard-card {
+            background-color: #1f1f1f;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .leaderboard-card:last-child {
+            margin-bottom: 0;
+        }
+        .chat-card {
+            background-color: #242424;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        .purple-accent {
+            color: #a855f7;
+        }
+        .sidebar {
+            background-color: #1a1a1a;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar ul li {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #333;
+        }
+        .sidebar ul li:last-child {
+            border-bottom: none;
+        }
+        .sidebar ul li i {
+            margin-right: 0.5rem;
+        }
+        .notification-tray {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 20rem;
+            background-color: #333;
+            border-radius: 0.5rem;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: block;
+            transition: width 0.5s ease-in-out;
+        }
+        .notification-tray.active {
+            position: fixed;
+            height:10px;
+            top: 1rem;
+            right: 1rem;
+            width: 20rem;
+            background-color: #333;
+            border-radius: 0.5rem;
+            z-index: 10;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: block;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        .button {
+    background-color: #4CAF50; /* Green background */
+    border: none; /* No border */
+    color: white; /* White text */
+    padding: 15px 32px; /* Top and bottom padding of 15px, left and right padding of 32px */
+    text-align: center; /* Center the text inside the button */
+    text-decoration: none; /* No underline on text */
+    display: inline-block; /* Display inline-block */
+    font-size: 16px; /* Text font size */
+    margin: 4px 2px; /* Margin around the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 8px; /* Rounded corners */
+    transition-duration: 0.4s; /* Transition effect duration */
+}
+
+.button:hover {
+    background-color: #45a049; /* Darker shade of green on hover */
+}
+
+    
+    </style>
+    <!-- JavaScript -->
+    
+</head>
+<body class="font-roboto">
+  <div class="notification-tray">
+    <div class="notification-header">
+         <h1 style = 'font-size:20px; text-align:center'> Your Alerts</h1>
+    </div>
+    <!-- Notification Items -->
+    {% if tournament_alerts %}
+        {% for alert in tournament_alerts %}
+            <li class="list-group-item">
+                {{ alert[2] }}
+                {% if 'enroll if interested' in alert[2].lower() %}
+                    <form action="/enrollments" method="POST" style="display: inline;">
+                        <input type="hidden" name="username" value="{{ username }}">
+                        <input type="hidden" name="tournament_id" value="{{ alert[5] }}">
+                        <button type="submit" class="button">Enroll</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    {% else %}
+        <div class="no-alerts">
+            <br>
+            <p style = 'text-align:center'> You have no new notifications! </p>
+            <br>
+        </div>
+    {% endif %}
+    <a href="#" class="see-all-link"></a>
+</div>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-1/6">
+            <ul>
+               <li><a href="{{ url_for('RCL_Home_Screen') }}"><i class="fas fa-home"></i> Home Screen</a></li>
+               <li><a href="{{ url_for('RCL_Player_Ranking_Screen') }}"><i class="fas fa-home"></i>  Player Ranking </a></li>
+               <li><a href="{{ url_for('RCL_Team_Ranking_Screen') }}"><i class="fas fa-home"></i>  Team Ranking </a></li>
+               <li><a href="{{ url_for('RCL_Subcription_Screen') }}"><i class="fas fa-home"></i>  Subscription </a></li>
+               <li><a href="{{ url_for('RCL_Eagle_Eye_Screen') }}"><i class="fas fa-home"></i>  Eagle </a></li>
+          
+            <li class="nav-item">
+                <form action="{{ url_for('logout') }}" method="post">
+                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                </form>
+            </li>
+
+            </ul>
+        </div>
+        <!-- Content -->
+        <div class="w-5/6 p-6">
+            <div class="profile-header p-6 rounded-lg mb-6">
+
+                <div class="flex items-center mb-4">
+                    <img src="{{ profile_image_url }}" alt="Player Avatar" class="rounded-full mr-4" style="width: 200px; height: 200px;">
+                     <h2 class="text-2xl font-bold">{{ username }}</h2>
+                        <p>{{player_profile_description}}</p>
+                    </br>
+                </br>
+                    
+                    <div>
+                       
+
+                    </div>
+                </div>
+             <form action="/upload-image" method="POST" enctype="multipart/form-data">
+    <input type="file" name="profile_image" accept="image/*">
+    <button type="submit" style="background-color: #00008B; /* Blue background */
+                                border: none; /* No border */
+                                color: white; /* White text */
+                                padding: 10px 20px; /* Smaller padding */
+                                text-align: center; /* Center text */
+                                text-decoration: none; /* No underline */
+                                display: inline-block; /* Inline-block display */
+                                font-size: 14px; /* Smaller font size */
+                                margin: 4px 2px; /* Margin */
+                                cursor: pointer; /* Pointer cursor */
+                                border-radius: 4px; /* Rounded corners */
+                                transition-duration: 0.4s; /* Smooth transition */"
+          onmouseover="this.style.backgroundColor='#0056b3'" 
+          onmouseout="this.style.backgroundColor='#007bff'">
+        Upload Image
+    </button>
+</form>
+
+
+
+
+
+
+                
+                <!-- Player stats and accomplishments -->
+            </div>
+            <!-- Achievements and Leaderboards -->
+            <div class="flex mb-6">
+                <!-- Achievements -->
+                <div class="w-1/2 mr-6">
+                    <div class="achievement-card">
+                        <h3 class="text-lg font-bold mb-2">Achievements</h3>
+                        {% for tournament, team_id in achievements_data %}
+                        {% if team_id == "TD-1001" %}
+                            <div class="achievement-item flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-bold">{{ tournament }}</h3>
+                                    <p class="text-purple-accent">Team ID: {{ team_id }}</p>
+                                </div>
+                                <i class="fas fa-trophy text-purple-accent text-3xl"></i>
+                            </div>
+                        {% endif %}
+                    {% endfor %}     
+                    </div>
+                </div>
+                <!-- Leaderboards -->
+                <div class="w-1/2">
+                    <div class="leaderboard-card">
+                        <h3 class="text-lg font-bold mb-2">Leaderboards</h3>
+                        {% for team_id, position in leaderboard_data %}
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <p class="font-medium">Team ID: {{ team_id }}</p>
+                                    <p class="text-sm text-gray-400">Position: {{ position }}</p>
+                                </div>
+                                <span class="text-purple-accent">{{ position }}th Place</span>
+                            </div>
+                        {% endfor %}
+                        <!-- Repeat for other leaderboard entries -->
+                    </div>
+                    <!-- Other leaderboards -->
+                </div>
+            </div>
+            <!-- Chat -->
+            <div class="chat-card">
+                        <h3 style="text-align: center ; font-size: 20px"><b> Chat with Players </b> </h3>
+                        <div class="chat-card overflow-auto h-64">
+                            <div class="chat-messages">
+                                <!-- Chat messages will be loaded here -->
+                            </div>
+                            <div class="mt-4">
+                                <input type="text" id="chatInput" placeholder="Write a comment..." class="w-full bg-transparent border border-gray-700 p-2 rounded text-gray-300">
+                                <button onclick="sendChatMessage()" class="button">Send</button>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+    </div>
+
+    </body>
+<script>
+     
+     
+     function loadChatMessages(loggedInUsername) {
+    fetch('/get-chat-messages')
+        .then(response => response.json())
+        .then(messages => {
+            let messagesHtml = messages.map(msg => {
+                if (msg.username === loggedInUsername) {
+                    // Style for logged-in user's messages
+                    return `<div style="color: darkred; font-weight: bold;"><strong>${msg.username}:</strong> ${msg.message}</div>`;
+                } else {
+                    // Style for other users' messages
+                    return `<div><strong>${msg.username}:</strong> ${msg.message}</div>`;
+                }
+            }).join('');
+            document.querySelector('.chat-messages').innerHTML = messagesHtml;
+        });
+}
+
+                                       var loggedInUsername = "{{ username }}"; // Assuming 'username' is your Jinja2 variable for the logged-in user's username
+    loadChatMessages(loggedInUsername);
+    setInterval(() => loadChatMessages(loggedInUsername), 5000); // Refresh every 5 seconds
+
+
+        function toggleNotifications() {
+            var tray = document.querySelector('.notification-tray');
+            tray.classList.toggle('hidden');
+        }
+   
+
+                                        function toggleNotifications() {
+                                                var tray = document.getElementById("notificationTray");
+                                                tray.classList.toggle("show");
+                                            }
+                                        // Toggle Notifications
+                                        function toggleNotifications() {
+                                            var tray = document.getElementById("notificationTray");
+                                            tray.classList.toggle("show");
+                                        }
+
+                                        // Feedback Form Submission
+                                        document.getElementById('feedback-form').addEventListener('submit', function(event) {
+                                            event.preventDefault();
+                                            var feedback = document.getElementById('feedback-input').value;
+                                            // Send the feedback to your server
+                                            console.log('Feedback:', feedback);
+                                        });
+
+                                        // Customization Form Submission
+                                        document.getElementById('customization-form').addEventListener('submit', function(event) {
+                                            event.preventDefault();
+                                            var sections = Array.from(document.querySelectorAll('input[name="section"]:checked')).map(function(input) {
+                                                return input.value;
+                                            });
+                                            // Save the selected sections to the user's preferences
+                                            console.log('Selected sections:', sections);
+                                        });
+
+                                        // Welcome Modal
+                                        document.getElementById('close-modal').addEventListener('click', function() {
+                                            document.getElementById('welcome-modal').style.display = 'none';
+                                        });
+
+                                        window.onload = function() {
+                                            document.getElementById('welcome-modal').style.display = 'block';
+                                        };
+                                         // Function to send a chat message
+                                        function sendChatMessage() {
+                                            let messageInput = document.querySelector('#chatInput');
+                                            let messageText = messageInput.value;
+                                            fetch('/post-chat-message', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                                },
+                                                body: 'message=' + encodeURIComponent(messageText)
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if(data.status === 'success') {
+                                                    loadChatMessages();
+                                                    messageInput.value = '';
+                                                } else {
+                                                    console.error('Error posting message:', data.message);
+                                                }
+                                            });
+
+                                            loadChatMessages();
+                                    setInterval(loadChatMessages, 5000); // Refresh every 5 seconds
+                                        }
+
+
+                                    function toggleNotifications() {
+                                            var tray = document.getElementById("notificationTray");
+                                            tray.classList.toggle("show");
+                                        }
+
+                                        // Feedback Form Submission
+                                        document.getElementById('feedback-form').addEventListener('submit', function(event) {
+                                            event.preventDefault();
+                                            var feedback = document.getElementById('feedback-input').value;
+                                            // Send the feedback to your server
+                                            console.log('Feedback:', feedback);
+                                        });
+
+                                        // Customization Form Submission
+                                        document.getElementById('customization-form').addEventListener('submit', function(event) {
+                                            event.preventDefault();
+                                            var sections = Array.from(document.querySelectorAll('input[name="section"]:checked')).map(function(input) {
+                                                return input.value;
+                                            });
+                                            // Save the selected sections to the user's preferences
+                                            console.log('Selected sections:', sections);
+                                        });
+
+
+                                        // Function to load chat messages
+                                       
+
+                                         // Welcome Modal
+                                        document.getElementById('close-modal').addEventListener('click', function() {
+                                            document.getElementById('welcome-modal').style.display = 'none';
+                                        });
+
+                                        window.onload = function() {
+                                            document.getElementById('welcome-modal').style.display = 'block';
+                                        };
+
+
+                                    </script>

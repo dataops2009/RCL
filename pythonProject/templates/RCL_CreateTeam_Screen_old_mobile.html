@@ -1,0 +1,142 @@
+{% extends 'RCL_Main_Template.html' %}
+
+{% block title %}
+RCL - Breachers VR League & Tournaments
+{% endblock %}
+{% block header %}
+{% endblock %}
+{% block content %}
+    <h1>Create a Team</h1>
+    <form action="/create-team" method="POST" id="create-team-form">
+        <label for="name">Team Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <!-- Displaying the logged-in user as the captain -->
+        <p>Captain: {{ session['username'] }}</p>
+
+        <label for="co_captain_id">Co-Captain ID:</label>
+        <input type="text" id="co-captain-search" placeholder="Search for Co-Captain and select"><br>
+        <select id="co-captain-list" name="co_captain" required>
+            <option value="" disabled selected>Select Co-Captain</option>
+            {% for player in player_list %}
+                <option value="{{ player }}">{{ player }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="all-players">All Players:</label>
+        <input type="text" id="player-search-all" placeholder="Search for players"><br>
+        <select id="all-players" name="all-players[]" multiple required>
+            {% for player in player_list %}
+                <option value="{{ player }}">{{ player }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Selected Players:</label>
+        <input type="text" id="player-search-selected" placeholder="Search for players"><br>
+        <select id="selected-players" name="selected-players[]" multiple required></select><br><br>
+
+        <button type="button" id="add-player-button">Add Player</button>
+        <button type="button" id="remove-player-button">Remove Player</button><br><br>
+
+        <input type="submit" value="Create Team">
+    </form>
+
+    <script>
+        // JavaScript code to add and remove players and filter dropdown options
+        const addPlayerButton = document.getElementById("add-player-button");
+        const removePlayerButton = document.getElementById("remove-player-button");
+        const allPlayersDropdown = document.getElementById("all-players");
+        const selectedPlayersDropdown = document.getElementById("selected-players");
+        const captainDropdown = document.getElementById("captain-list");
+        const coCaptainDropdown = document.getElementById("co-captain-list");
+        const playerSearchAll = document.getElementById("player-search-all");
+        const playerSearchSelected = document.getElementById("player-search-selected");
+        const captainSearch = document.getElementById("captain-search");
+        const coCaptainSearch = document.getElementById("co-captain-search");
+
+        // Function to filter options in a dropdown based on the search input
+        function filterDropdown(dropdown, searchInput) {
+            const searchText = searchInput.value.toLowerCase();
+            const options = dropdown.options;
+            for (let i = 0; i < options.length; i++) {
+                const optionText = options[i].text.toLowerCase();
+                if (optionText.includes(searchText)) {
+                    options[i].style.display = "";
+                } else {
+                    options[i].style.display = "none";
+                }
+            }
+        }
+
+                function refreshPage() {
+            setTimeout(function() {
+                location.reload();
+            }, 1000); // Delay of 1 second before refreshing
+        }
+
+        // Function to add a player from the all players dropdown to the selected players dropdown
+        addPlayerButton.addEventListener("click", () => {
+            const selectedOptions = allPlayersDropdown.selectedOptions;
+            for (const option of selectedOptions) {
+                if (!Array.from(selectedPlayersDropdown.options).some(selectedOption => selectedOption.value === option.value)) {
+                    selectedPlayersDropdown.appendChild(option.cloneNode(true));
+                }
+            }
+        });
+
+        removePlayerButton.addEventListener("click", () => {
+    const selectedOptions = Array.from(selectedPlayersDropdown.selectedOptions);
+    const playerIds = selectedOptions.map(option => option.value);
+
+    fetch('/remove-players', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ playerIds: playerIds })
+    })
+    .then(response => {
+        if (response.ok) {
+            refreshPage();
+        } else {
+            console.error('Failed to remove players');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
+        // Function to remove selected players from the selected players dropdown
+        removePlayerButton.addEventListener("click", () => {
+            const selectedOptions = selectedPlayersDropdown.selectedOptions;
+            for (const option of selectedOptions) {
+                selectedPlayersDropdown.removeChild(option);
+                
+            }
+         
+        });
+
+
+
+        // Add event listeners for filtering dropdown options
+        playerSearchAll.addEventListener("input", () => {
+            filterDropdown(allPlayersDropdown, playerSearchAll);
+        });
+
+        playerSearchSelected.addEventListener("input", () => {
+            filterDropdown(selectedPlayersDropdown, playerSearchSelected);
+        });
+
+        captainSearch.addEventListener("input", () => {
+            filterDropdown(captainDropdown, captainSearch);
+        });
+
+        coCaptainSearch.addEventListener("input", () => {
+            filterDropdown(coCaptainDropdown, coCaptainSearch);
+        });
+    </script>
+{% endblock %}
+
+{% block footer %}
+
+{% endblock %}
