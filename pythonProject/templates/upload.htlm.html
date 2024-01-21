@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Match Data</title>
+</head>
+<body>
+    <h1>Upload Match Data</h1>
+    <form method="post" action="{{ url_for('upload') }}">
+        <input type="hidden" name="tournament" value="{{ request.args.get('tournament') }}">
+        <input type="hidden" name="stage" value="{{ request.args.get('stage') }}">
+        <!-- Add your input fields for match data here -->
+        <label for="team1">Team 1 ID:</label>
+        <input type="text" id="team1" name="team1"><br><br>
+        <label for="team2">Team 2 ID:</label>
+        <input type="text" id="team2" name="team2"><br><br>
+        <!-- Add other fields as necessary -->
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

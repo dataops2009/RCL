@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image OCR</title>
+</head>
+<body>
+    <h1>Image OCR</h1>
+    <form method="POST" action="/" enctype="multipart/form-data">
+        <input type="file" name="image">
+        <input type="submit" value="Upload Image">
+    </form>
+
+    {% if image_uploaded %}
+    <h2>Select Four Points on the Image</h2>
+    <p>Click on the image to select points. You must select exactly four points.</p>
+    <canvas id="imageCanvas"></canvas>
+    <button id="processBtn">Process Image</button>
+    <div id="ocrResults"></div>
+    {% endif %}
+
+    <script>
+        let points = [];
+        const canvas = document.getElementById('imageCanvas');
+        const ctx = canvas.getContext('2d');
+        const imageInput = document.querySelector('input[type="file"]');
+        const processBtn = document.getElementById('processBtn');
+        const ocrResultsDiv = document.getElementById('ocrResults');
+
+        let image = new Image();
+        image.onload = function() {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
+        };
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                image.src = URL.createObjectURL(file);
+            }
+        });
+
+        canvas.addEventListener('click', function(e) {
+            if (points.length < 4) {
+                points.push([e.offsetX, e.offsetY]);
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.arc(e.offsetX, e.offsetY, 5, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        });
+
+        processBtn.addEventListener('click', function() {
+            if (points.length === 4) {
+                const formData = new FormData();
+                formData.append('points', points.map(p => p.join(',')).join(';'));
+
+                fetch('/process', { method: 'POST', body: formData })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('OCR Results:', data);
+                        displayOcrResults(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            } else {
+                alert('Please select exactly four points on the image.');
+            }
+        });
+
+        function displayOcrResults(data) {
+            ocrResultsDiv.innerHTML = '<h2>OCR Results:</h2>';
+            data.forEach(result => {
+                const para = document.createElement('p');
+                para.textContent = `Text: ${result.text}, Confidence: ${result.confidence}`;
+                ocrResultsDiv.appendChild(para);
+            });
+        }
+    </script>
+</body>
+</html>

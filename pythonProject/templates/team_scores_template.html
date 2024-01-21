@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Scores</title>
+</head>
+<body>
+    <h1>Team 1 Scores:</h1>
+    <form id="team1Form">
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Points</th>
+                <th>Action</th>
+            </tr>
+            <tbody id="team1TableBody">
+                {{ team1_html | safe }}
+            </tbody>
+            <tr>
+                <td><input type="text" name="newUsername" placeholder="New Username"></td>
+                <td><input type="number" name="newPoints" placeholder="New Points"></td>
+                <td><button type="button" onclick="addRow('team1')">Add</button></td>
+            </tr>
+        </table>
+    </form>
+
+    <h1>Team 2 Scores:</h1>
+    <form id="team2Form">
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Points</th>
+                <th>Action</th>
+            </tr>
+            <tbody id="team2TableBody">
+                {{ team2_html | safe }}
+            </tbody>
+            <tr>
+                <td><input type="text" name="newUsername" placeholder="New Username"></td>
+                <td><input type="number" name="newPoints" placeholder="New Points"></td>
+                <td><button type="button" onclick="addRow('team2')">Add</button></td>
+            </tr>
+        </table>
+    </form>
+
+    <script>
+        function addRow(team) {
+            var tableBody = document.getElementById(team + 'TableBody');
+            var newRow = tableBody.insertRow();
+            var newUsernameCell = newRow.insertCell(0);
+            var newPointsCell = newRow.insertCell(1);
+            var actionCell = newRow.insertCell(2);
+            var newUsernameInput = document.createElement('input');
+            newUsernameInput.setAttribute('type', 'text');
+            newUsernameInput.setAttribute('name', 'new' + team + 'Username');
+            newUsernameInput.setAttribute('placeholder', 'New Username');
+            var newPointsInput = document.createElement('input');
+            newPointsInput.setAttribute('type', 'number');
+            newPointsInput.setAttribute('name', 'new' + team + 'Points');
+            newPointsInput.setAttribute('placeholder', 'New Points');
+            var saveButton = document.createElement('button');
+            saveButton.setAttribute('type', 'button');
+            saveButton.innerHTML = 'Save';
+            saveButton.style.display = 'none'; // Initially hidden
+            var editButton = document.createElement('button');
+            editButton.setAttribute('type', 'button');
+            editButton.innerHTML = 'Edit';
+            editButton.onclick = function () {
+                newUsernameInput.value = currentUsernameCell.innerText;
+                newPointsInput.value = currentPointsCell.innerText;
+                currentUsernameCell.style.display = 'none';
+                currentPointsCell.style.display = 'none';
+                newUsernameInput.style.display = 'inline-block';
+                newPointsInput.style.display = 'inline-block';
+                saveButton.style.display = 'inline-block';
+                editButton.style.display = 'none';
+            };
+            saveButton.onclick = function () {
+                currentUsernameCell.innerText = newUsernameInput.value;
+                currentPointsCell.innerText = newPointsInput.value;
+                currentUsernameCell.style.display = 'inline-block';
+                currentPointsCell.style.display = 'inline-block';
+                newUsernameInput.style.display = 'none';
+                newPointsInput.style.display = 'none';
+                saveButton.style.display = 'none';
+                editButton.style.display = 'inline-block';
+            };
+            var currentUsernameCell = newRow.insertCell(0);
+            var currentPointsCell = newRow.insertCell(1);
+            var deleteButton = document.createElement('button');
+            deleteButton.setAttribute('type', 'button');
+            deleteButton.innerHTML = 'Delete';
+            deleteButton.onclick = function () {
+                newRow.remove();
+            };
+            currentUsernameCell.style.display = 'inline-block';
+            currentPointsCell.style.display = 'inline-block';
+            currentUsernameCell.innerText = '';
+            currentPointsCell.innerText = '';
+            newUsernameCell.appendChild(newUsernameInput);
+            newPointsCell.appendChild(newPointsInput);
+            actionCell.appendChild(editButton);
+            actionCell.appendChild(saveButton);
+            actionCell.appendChild(deleteButton);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+import random
+
+class Tournament:
+    def __init__(self, tName, id, duration_days, prize_pool, game_type):
+        self.tName = tName
+        self.id = id
+        self.duration_days = duration_days
+        self.prize_pool = prize_pool
+        self.game_type = game_type
+        self.teamRankings = []
+        self.match_ups = []
+        self.top_8_teams = []
+
+    def select_random_map(self):
+        return random.choice(['Hideout', 'Skyscraper', 'Factory', 'Ship', 'Arctic', 'Shoothouse'])
+
+    def create_match_ups(self, ActiveTeamList):
+        random.shuffle(ActiveTeamList)
+        self.match_ups = [[ActiveTeamList[i], ActiveTeamList[i + 1], self.select_random_map()] for i in range(0, len(ActiveTeamList), 2)]
+        return self.match_ups
+
+    def initialise_team_rankings(self, ActiveTeamList):
+        self.teamRankings = [{'team': team, 'score': 0, 'wins': 0, 'losses': 0, 'draws': 0} for team in ActiveTeamList]
+        return self.teamRankings
+
+    def update_team_rankings(self, match_results):
+        for team1, team2, team1_score, team2_score, winner, _ in match_results:
+            for team in self.teamRankings:
+                if team['team'] in [team1, team2]:
+                    if team['team'] == winner:
+                        team['score'] += 3
+                        team['wins'] += 1
+                    elif winner == "Draw":
+                        team['score'] += 1
+                        team['draws'] += 1
+                    else:
+                        team['losses'] += 1
+        return self.teamRankings
+
+    def get_match_results(self, match_ups):
+        match_results = []
+        for team1, team2, map in match_ups:
+            team1_score = random.randint(0, 7)
+            team2_score = random.randint(0, 7)
+            winner = team1 if team1_score > team2_score else team2 if team1_score < team2_score else "Draw"
+            match_results.append([team1, team2, team1_score, team2_score, winner, map])
+        return match_results
+
+    def print_league_table(self):
+        return sorted(self.teamRankings, key=lambda x: x['score'], reverse=True)
+
+    def select_top_8_teams(self):
+        self.top_8_teams = sorted(self.teamRankings, key=lambda x: x['score'], reverse=True)[:8]
+        return [team['team'] for team in self.top_8_teams]
+
+    def remove_losing_team_from_top_8(self, match_results):
+        for team1, team2, _, _, winner, _ in match_results:
+            loser = team2 if winner == team1 else team1
+            self.top_8_teams = [team for team in self.top_8_teams if team['team'] != loser]
+        return [team['team'] for team in self.top_8_teams]
+
+
+    def run_tournament_phase_prefinal(self, team_list):
+        self.create_match_ups(team_list)
+        match_results = self.get_match_results(self.match_ups)
+        self.update_team_rankings(match_results)
+        league_table = self.print_league_table()
+        return league_table, match_results
+
+    def run_tournament_phase_final(self, top_8_teams):
+        self.top_8_teams = top_8_teams
+        self.create_match_ups(top_8_teams)
+        match_results = self.get_match_results(self.match_ups)
+        self.update_team_rankings(match_results)
+        self.remove_losing_team_from_top_8(match_results)
+        league_table = self.print_league_table()
+        return league_table, match_results
+
+    def transition_to_final(self):
+        top_8 = self.select_top_8_teams()
+        return top_8
+
+    def customise_tournament(self, tName, id, duration_days, prize_pool, game_type):
+        self.tName = tName
+        self.id = id
+        self.duration_days = duration_days
+        self.prize_pool = prize_pool
+        self.game_type = game_type
+        return {
+            "tName": tName, 
+            "id": id, 
+            "duration_days": duration_days, 
+            "prize_pool": prize_pool, 
+            "game_type": game_type
+        }
+
+    def notify_tournament_start(self):
+        return f'{self.tName} Tournament has started!'
+
+    def notify_tournament_end(self):
+        return f'{self.tName} Tournament has ended!'
+
+    def notify_match_results(self, match_results):
+        return f'{self.tName} Tournament, Match results have been logged: {match_results}'
+
+    def notify_team_rankings(self):
+        return f'{self.tName} Tournament, Team rankings have been updated!'
+
+    def notify_match_ups(self, match_ups):
+        return f'{self.tName} Tournament, Match-ups have been created: {match_ups}'
+
+    def notify_top_8_teams(self):
+        return f'Top 8 teams have been selected for the {self.tName} Tournament! The final has begun!'
+
+    def notify_quarter_finals(self):
+        return f'Quarter-finals for the {self.tName} Tournament have begun!'
+
+    def notify_semi_finals(self):
+        return f'Semi-finals for the {self.tName} Tournament have begun!'
+
+    def notify_final(self):
+        return f'The final for the {self.tName} Tournament has begun!'

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tournament Details</title>
+</head>
+<body>
+    <h1>Tournament Details</h1>
+    <form method="post" action="/tournament">
+        <label for="tName">Tournament Name:</label>
+        <input type="text" id="tName" name="tName"><br>
+
+        <label for="id">Tournament ID:</label>
+        <input type="number" id="id" name="id"><br>
+
+        <label for="duration_days">Duration (Days):</label>
+        <input type="number" id="duration_days" name="duration_days"><br>
+
+        <label for="prize_pool">Prize Pool (£):</label>
+        <input type="number" id="prize_pool" name="prize_pool"><br>
+
+        <label for="game_type">Game Type:</label>
+        <input type="text" id="game_type" name="game_type"><br>
+
+        <input type="submit" value="Create/Update Tournament">
+    </form>
+
+    {% if tournament %}
+        <h2>Current Tournament Information</h2>
+        <p><strong>Name:</strong> {{ tournament.tName }}</p>
+        <p><strong>ID:</strong> {{ tournament.id }}</p>
+        <p><strong>Duration:</strong> {{ tournament.duration_days }} days</p>
+        <p><strong>Prize Pool:</strong> £{{ tournament.prize_pool }}</p>
+        <p><strong>Game Type:</strong> {{ tournament.game_type }}</p>
+
+        <h3>League Table</h3>
+        {% for team in league_table %}
+            <p>{{ team.team }}: {{ team.score }} Points</p>
+        {% endfor %}
+
+        <h3>Match Results</h3>
+        {% for result in match_results %}
+            <p>{{ result[0] }} vs {{ result[1] }}: {{ result[2] }} - {{ result[3] }}. Winner: {{ result[4] }}</p>
+        {% endfor %}
+
+        <h3>Top 8 Teams</h3>
+        <p>{{ top_8_teams }}</p>
+
+        <!-- Display Match Results for Top 8 Teams -->
+<h2>Match Results for Top 8 Teams</h2>
+{% for result in match_results %}
+    {% if result[0] in top_8_teams or result[1] in top_8_teams %}
+        <p>{{ result[0] }} vs {{ result[1] }}: {{ result[2] }} - {{ result[3] }}. Winner: {{ result[4] }}</p>
+    {% endif %}
+{% endfor %}
+
+
+        <!-- Display Tournament Winner -->
+<h2>Tournament Winner</h2>
+<p><strong>Winner:</strong> {{ tournament.get_tournament_winner() }}</p>
+
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+    {% else %}
+        <p>No tournament data available.</p>
+    {% endif %}
+</body>
+</html>

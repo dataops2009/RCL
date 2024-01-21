@@ -1,40 +1,215 @@
-{% extends 'RCL_Main_Template.html' %}
- 
-{% block title %}
-RCL - Team Rankings
-{% endblock %}
- 
-{% block header %}
-<!-- Header Content -->
-{% endblock %}
-    <main>
-        <!-- Main content for the Tournament -->
-        <section class="tournament">
-            <h1>RCL Tournament Overview</h1>
-            <div class="tournament-details">
-                <h2>Current Tournament</h2>
-                <!-- Tournament details like name, dates, location -->
-                <p>Tournament Name: XYZ Championship</p>
-                <p>Dates: Date Start - Date End</p>
-                <p>Location: XYZ Arena</p>
-                <!-- Additional tournament information -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Betting App Interface</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    body {
+    font-family: 'Roboto', sans-serif;
+    }
+
+    .imageformating {
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-image: url('bg_test.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.6); /* Adjust the opacity to make it lighter or darker */
+    z-index: -1;
+    }
+
+    .burger-menu {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 1000;
+        border-radius: 2px;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px;
+    }
+
+    .burger-line {
+        width: 30px;
+        height: 3px;
+        background-color: white;
+        margin: 6px 0;
+        transition: 0.4s;
+    }
+
+    .sidebar {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 500;
+        top: 0;
+        right: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+
+    .sidebar a {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 22px;
+        color: gray;
+        display: block;
+        transition: 0.15s;
+    }
+
+    .nav-opacity {
+        opacity: 0.0;
+        transition: 0.1s ease-in;
+    }
+    .nav-opacity.active {
+        opacity: 1.0;
+        transition: 1.5s ease-in-out;
+    }
+
+    .sidebar a:hover {
+        color: #f1f1f1;
+    }
+
+    .profile-container {
+        text-align: center;
+        padding: 20px 20px;
+    }
+
+    .profile-picture {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 3px solid #333;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .bio {
+        color: #666;
+        font-style: italic;
+    }
+
+    .contact-info {
+        color: #333;
+        margin-top: 20px;
+    }
+    .notifications-container {
+        margin-top: auto; /* Push to bottom */
+    }
+
+</style>
+<script>
+    function toggleNav() {
+        var sidebar = document.getElementById("sidebar");
+        var burgerLines = document.querySelectorAll(".burger-line");
+        var items = document.querySelectorAll(".nav-opacity");
+        
+        if (sidebar.style.width === "250px") {
+            sidebar.style.width = "0";
+            burgerLines.forEach(line => {
+                line.style.backgroundColor = "white";
+                
+            });
+            items.forEach(item => {
+                item.classList.remove('active')
+                
+            });
+        } else {
+            sidebar.style.width = "250px";
+            burgerLines.forEach(line => {
+                line.style.backgroundColor = "white";
+            });
+            items.forEach(item => {
+                item.classList.add('active')
+                
+            });
+        }
+    }
+    </script>
+</head>
+<body class="text-white">
+    <div class="max-w-sm mx-auto">
+        <div class="px-4 py-2 items-center">
+            <div class="flex justify-center text-center" style="margin-top: 10px;">
+               
             </div>
-            <div class="tournament-bracket">
-                <h2>Tournament Bracket</h2>
-                <!-- Tournament bracket display or link to the bracket -->
-                <p>Bracket details or embedded bracket tool</p>
-            </div>
-            <div class="tournament-schedule">
-                <h2>Match Schedule</h2>
-                <!-- Match schedule for the tournament -->
-                <p>Details of upcoming matches, times, and locations</p>
-            </div>
-            <!-- Additional sections for results, teams, etc. -->
-        </section>
-    </main>
+        </div>
+    </div>
+    <div class="burger-menu" onclick="toggleNav()">
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+        <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+        <img src="static/images/RCL.png" alt="Girl in a jacket" width="125" height="150" style="position: fixed; top: 25px;">
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 mb-4" style="position: fixed; top: 130px; right: 0px; left: 0px;">
+        <div class="text-center py-4 rounded-lg bg-[#2A2A2A]">
+            <h1 class="text-4xl font-bold text-center text-white">Tournaments</h1>
+        </div>
+
+ <div class="overflow-hidden rounded-lg m-4">
+  <ul>
+    {% for tournament in current_tournaments %}
+    <li class="bg-[#2A2A2A] mx-2 my-2 rounded-lg p-4 grid grid-cols-6 gap-4 items-center">
+        <div class="col-span-2 flex flex-col justify-between">
+            <p class="text-sm font-medium font-bold">{{ tournament[1] }}</p> <!-- Tournament Name -->
+            <!-- Other tournament details -->
+        </div>
+        {% if tournament[0] in enrolled_tournaments %}
+        <button class="bg-green-700 text-white font-bold py-2 rounded col-span-2" style="width: 300px; height: 40px;" disabled>
+            Enrolled
+        </button>
+        {% else %}
+        <form action="{{ url_for('enroll') }}" method="POST">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="hidden" name="tournament_id" value="{{ tournament[0] }}">
+            <button type="submit" class="bg-red-700 text-white font-bold py-2 rounded col-span-2" style="width:300px; height: 40px;">
+                Enroll
+            </button>
+        </form>
+        {% endif %}
+        <button class="bg-orange-700 hover:bg-orange-600 text-white font-bold py-2 rounded col-span-2 overflow-hidden" style="width:300px ; height: 40px;">
+            <a href="{{ url_for('RCL_Tournament_Screen', tournament_id=tournament[0]) }}">View Rankings</a>
+        </button>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+
 </body>
-{% endblock %}
- 
-{% block footer %}
-<!-- Footer Content -->
-{% endblock %}
+</html>

@@ -1,0 +1,58 @@
+{% extends 'RCL_Main_Template.html' %}
+
+{% block title %}
+RCL - Breachers VR League & Tournaments
+{% endblock %}
+
+{% block header %}
+    {% include 'RCL_Header_Template.html' %}
+{% endblock %}
+
+{% block content %}
+        <!-- Page-specific content will go here -->
+        <!-- <h1 style="font-size: 200pt;">Welcome, {{ username }}</h1> -->
+
+<header class="py-2 bg-dark text-white">  <!-- Fixed missing <header> tag -->
+<div class="container">
+    <!-- Improved alt texts -->
+    <div class="row align-items-center">
+        <div class="col-lg-6 d-none d-lg-block">
+            <img src="{{ url_for('static', filename='images/TitleHeader_1.png') }}" alt="Title Header Image" class="img-fluid">
+        </div>
+        <div class="col-lg-4 d-none d-lg-block">
+            <img src="{{ url_for('static', filename='images/Enforcer_01.png') }}" alt="Enforcer Player Model" class="img-fluid">
+        </div>
+        <div class="col-lg-4 d-none d-lg-block">
+            <img src="{{ url_for('static', filename='images/Revolter_01.png') }}" alt="Revolter Player Model" class="img-fluid">
+        </div>
+    </div>
+</div>
+    <!-- Main Content Area -->
+    <main class="container my-5">
+        <div class="row mb-4 text-center text-white">
+            <!-- Placeholder for Player PNG -->
+            <div class="col-md-4 mb-3 text-white">
+                <img src="{{ url_for('static', filename='images/Breachers_Factory_Upgrade_4K.png') }}" alt="Player" class="img-fluid">
+                <h2 class="gametitle">The Arena</h2>
+                <p class="text-muted text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            <!-- Placeholder for PNG Content -->
+            <div class="col-md-4 mb-3 text-white">
+                <img src="{{ url_for('static', filename='images/Breachers_Factory_Shootout_4K.png') }}" alt="Content" class="img-fluid">
+                <h2 class="gametitle">The Challenge</h2>
+                <p class="text-muted text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            <!-- Placeholder for PNG Content -->
+            <div class="col-md-4 mb-3 text-white">
+                <img src="{{ url_for('static', filename='images/Breachers_Hideout_Outside_4K.png') }}" alt="Content" class="img-fluid">
+                <h2 class="gametitle">The Victory</h2>
+                <p class="text-muted text-white">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+        </div>
+    </main>
+    <!-- <h1>Welcome, {{ username }}</h1> -->
+{% endblock %}
+
+{% block footer %}
+
+{% endblock %}
