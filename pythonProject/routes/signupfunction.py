@@ -25,8 +25,9 @@ def signup_function():
     password = request.form['password']
     confirm_password = request.form['confirm_password']
 
+    
     if password != confirm_password:
-        return "Passwords do not match. Please go back and try again."
+        return render_template('RCL_Signup_Screen.html', password_match_message="Passwords do not match. Please go back and try again.")
 
     signup_manager = SignUpManager()
     registration_result = signup_manager.register_user(username, email, password)

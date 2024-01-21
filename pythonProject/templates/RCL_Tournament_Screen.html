@@ -164,51 +164,63 @@
         <div class="burger-line"></div>
     </div>
     <div class="sidebar" id="sidebar">
+    {% if session.username %}
+        <!-- Navigation items for logged-in users -->
         <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
         <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+        <!-- Logout Button -->
+        <form action="{{ url_for('logout') }}" method="post">
+            <button type="submit" class="btn btn-link nav-link logout-button">Logout</button>
+        </form>
+    {% else %}
+        <!-- Navigation items for users not logged in -->
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Signup_Screen') }}">Signup</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+    {% endif %}
+</div>
 
-    </div>
 
     <div style="display: flex; justify-content: center;">
         <img src="static/images/RCL.png" alt="Girl in a jacket" width="125" height="150" style="position: fixed; top: 25px;">
     </div>
 
-    <div class="grid grid-cols-1 gap-4 mb-4" style="position: fixed; top: 130px; right: 0px; left: 0px;">
-        <div class="text-center py-4 rounded-lg bg-[#2A2A2A]">
-            <h1 class="text-4xl font-bold text-center text-white">Tournaments</h1>
+    <div class="grid grid-cols-1 gap-4 mb-4 px-4" style="position: fixed; top: 130px; right: 0px; left: 0px;">
+        <div class="text-center py-4 rounded-lg bg-[#2A2A2A] ">
+            <h1 class="text-4xl font-bold text-center text-white px-4">Tournaments</h1>
         </div>
 
- <div class="overflow-hidden rounded-lg m-4">
-  <ul>
-    {% for tournament in current_tournaments %}
-    <li class="bg-[#2A2A2A] mx-2 my-2 rounded-lg p-4 grid grid-cols-6 gap-4 items-center">
-        <div class="col-span-2 flex flex-col justify-between">
-            <p class="text-sm font-medium font-bold">{{ tournament[1] }}</p> <!-- Tournament Name -->
-            <!-- Other tournament details -->
-        </div>
-        {% if tournament[0] in enrolled_tournaments %}
-        <button class="bg-green-700 text-white font-bold py-2 rounded col-span-2" style="width: 300px; height: 40px;" disabled>
-            Enrolled
-        </button>
-        {% else %}
-        <form action="{{ url_for('enroll') }}" method="POST">
-            <input type="hidden" name="username" value="{{ username }}">
-            <input type="hidden" name="tournament_id" value="{{ tournament[0] }}">
-            <button type="submit" class="bg-red-700 text-white font-bold py-2 rounded col-span-2" style="width:300px; height: 40px;">
-                Enroll
-            </button>
-        </form>
-        {% endif %}
-        <button class="bg-orange-700 hover:bg-orange-600 text-white font-bold py-2 rounded col-span-2 overflow-hidden" style="width:300px ; height: 40px;">
-            <a href="{{ url_for('RCL_Tournament_Screen', tournament_id=tournament[0]) }}">View Rankings</a>
-        </button>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
+    <div class="overflow-hidden rounded-lg m-0 px-0">
+        <ul class="px-0">
+            {% for tournament in current_tournaments %}
+            <li class="bg-[#2A2A2A] rounded-lg p-4 grid grid-cols-6 gap-4 items-center">
+                <div class="col-span-2 flex flex-col justify-between">
+                    <p class="text-sm font-medium font-bold">{{ tournament[1] }}</p> <!-- Tournament Name -->
+                    <!-- Other tournament details -->
+                </div>
+                {% if tournament[0] in enrolled_tournaments %}
+                <button class="bg-green-700 text-white font-bold py-2 rounded col-span-2" style="font-size: small;" disabled>
+                    Enrolled
+                </button>
+                {% else %}
+                <form action="{{ url_for('enroll') }}" method="POST">
+                    <input type="hidden" name="username" value="{{ username }}">
+                    <input type="hidden" name="tournament_id" value="{{ tournament[0] }}">
+                    <button type="submit" class="bg-red-700 text-white font-bold py-2 rounded col-span-2 px-2">
+                        Enroll
+                    </button>
+                </form>
+                {% endif %}
+                <button class="bg-orange-700 hover:bg-orange-600 text-white font-bold py-2 rounded col-span-2 px-2">
+                    <a href="{{ url_for('tourna_lead', tournament_id=tournament[0]) }}" style="font-size: smaller;">Rankings</a>
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 
 
 </body>

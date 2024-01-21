@@ -131,14 +131,26 @@
         <div class="burger-line"></div>
         <div class="burger-line"></div>
     </div>
-   <div class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar">
+    {% if session.username %}
+        <!-- Navigation items for logged-in users -->
         <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
         <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+        <!-- Logout Button -->
+        <form action="{{ url_for('logout') }}" method="post">
+            <button type="submit" class="btn btn-link nav-link logout-button">Logout</button>
+        </form>
+    {% else %}
+        <!-- Navigation items for users not logged in -->
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Signup_Screen') }}">Signup</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+    {% endif %}
+</div>
 
-    </div>
 
     <H1 style = "text-align:center; top: 10px; position:fixed; font-size:20px; color:red"> Testers!! - Please ignore sidebar, will be added to the right , as well as the width of text boxes - (simple fixes for next iteration) </H1>
 

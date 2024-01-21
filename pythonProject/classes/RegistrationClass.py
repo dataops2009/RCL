@@ -7,19 +7,30 @@ class SignUpManager:
     def __init__(self):
         self.conn = pymssql.connect('rcldevelopmentserver.database.windows.net', 'rcldeveloper', 'media$2009', 'rcldevelopmentdatabase')
 
-    def user_exists(self, email):
+    def email_exists(self, email):
         try:
             with self.conn.cursor() as cursor:
                 cursor.execute("SELECT * FROM UserRegistration WHERE Email = %s", (email,))
                 return cursor.fetchone() is not None
         except Exception as e:
-            print(f"Error in user_exists: {e}")
+            print(f"Error in email_exists: {e}")
+            return False  # or handle the error as appropriate
+
+    def username_exists(self, username):
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute("SELECT * FROM UserRegistration WHERE Username = %s", (username,))
+                return cursor.fetchone() is not None
+        except Exception as e:
+            print(f"Error in username_exists: {e}")
             return False  # or handle the error as appropriate
             
     def register_user(self, username, email, password):
         try:
-            if self.user_exists(email):
+            if self.email_exists(email):
                 return {"status": "error", "message": "Email already registered"}
+            if self.username_exists(username):
+                return {"status": "error", "message": "Username already taken"}
 
             with self.conn.cursor() as cursor:
                 # Retrieve the maximum ID_Var

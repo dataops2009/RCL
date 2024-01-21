@@ -31,6 +31,8 @@ from config import auth_codes
 from config import auth_codes
 from flask import Flask, render_template, request, session
 from flask import jsonify
+from PIL import Image
+from io import BytesIO
 
 import base64
 from flask import Flask, render_template, redirect, url_for, request, flash, session
@@ -40,6 +42,9 @@ import uuid
 #from config import notification_manager
 
 from classes.NotificationClass import NotificationManager
+
+import pymssql
+
 
 notification_manager = NotificationManager()
 
@@ -76,6 +81,14 @@ conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
 cursor = conn.cursor()
 
 
+def get_db_connection():
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+
+    return conn
+
 def generate_short_unique_id():
     unique_id = str(uuid.uuid4())  # Generate a UUID
     short_id = unique_id[:8]  # Take the first 8 characters as the short ID
@@ -92,7 +105,6 @@ def generate_short_unique_idd():
 def create_tournament():
     username = session.get('username')
     if request.method == 'POST':
-
         # Extract data from form
         name = request.form['name']
         start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
@@ -102,37 +114,47 @@ def create_tournament():
         game_type = request.form['game_type']
         description = request.form['description']
 
-        unique_id = generate_short_unique_idd()  # Replace with your method of generating a unique ID
+        # Generate unique IDs
+        unique_id = generate_short_unique_id()
         unique_idd = generate_short_unique_id()
 
-        # Insert data into the database
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO Tournaments_Dim (id, TName, start_date, end_date, rank_lower_bound, rank_upper_bound, game_type, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", 
-               (unique_idd, name, start_date, end_date, rank_lower_bound, rank_upper_bound, game_type, description))
+        # Establish a database connection
+        conn = get_db_connection()
 
+        if conn:
+            try:
+                cursor = conn.cursor()
 
-        # This shoould be all users from UserRegistration so they all recieve a notification
-        cursor.execute("SELECT ID_Var FROM UserRegistration WHERE ID_Var IS NOT NULL ")
-        users = cursor.fetchall()
-        falses = 'false'
+                # Insert data into the database
+                cursor.execute(
+                    "INSERT INTO Tournaments_Dim (id, TName, start_date, end_date, rank_lower_bound, rank_upper_bound, game_type, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (unique_idd, name, start_date, end_date, rank_lower_bound, rank_upper_bound, game_type, description)
+                )
 
-        for user in users:
-            user_id = user[0] 
-            notification_message = f"A new tournament '{name}' has been created!, please enroll if interested!"
-            cursor.execute("INSERT INTO Notifications (ID, ID_VAR, mymessages, read_status, tournament_name) VALUES (%s, %s, %s, %s,%s)", 
-                   (unique_id, user_id, notification_message, falses, name))
+                # Get all users for notifications
+                cursor.execute("SELECT ID_Var FROM UserRegistration WHERE ID_Var IS NOT NULL")
+                users = cursor.fetchall()
+                falses = 'false'
 
-       
-        conn.commit()
-        cursor.close()
+                for user in users:
+                    user_id = user[0]
+                    notification_message = f"A new tournament '{name}' has been created! Please enroll if interested."
+                    cursor.execute(
+                        "INSERT INTO Notifications (ID, ID_VAR, mymessages, read_status, tournament_name) VALUES (%s, %s, %s, %s, %s)",
+                        (unique_id, user_id, notification_message, falses, name)
+                    )
 
-        return redirect(url_for('create_tournament'))
+                conn.commit()
+                cursor.close()
+                conn.close()
+
+                return redirect(url_for('create_tournament'))
+
+            except pymssql.Error as e:
+                print(f"Database Error: {e}")
+                conn.rollback()  # Rollback the transaction in case of an error
 
     return render_template('create_tournament.html')
-
-
-
-
 def get_user_id(username):
     conn = pymssql.connect(
         server='rcldevelopmentserver.database.windows.net',
@@ -395,6 +417,30 @@ def RCL_Team_Ranking_Screen():
 def RCL_Forgot_Password_Screen():
     return render_template('RCL_Forgot_Password_Screen.html')
 
+
+def compress_image(image, max_size=800, quality=85):
+    """
+    Compress the image, resizing and adjusting quality.
+    :param image: Uploaded image file.
+    :param max_size: Maximum width or height of the image.
+    :param quality: Quality of the saved image.
+    :return: Compressed image in Bytes.
+    """
+    # Open the image
+    img = Image.open(image)
+
+    # Resize the image if it's too large
+    if img.height > max_size or img.width > max_size:
+        output_size = (max_size, max_size)
+        img.thumbnail(output_size, Image.ANTIALIAS)
+
+    # Save the image to BytesIO object
+    img_io = BytesIO()
+    img.save(img_io, 'JPEG', quality=quality)
+    img_io.seek(0)
+
+    return img_io
+
 ###################################################################### THE FUNCTIONALITY NEEDS TO GET COMPLETED ############################################################################
 @app.route('/tournament')
 def RCL_Tournament_Screen():
@@ -636,6 +682,25 @@ def gamer_profile():
                 user_role = "Team Player"
 
 
+    user_team_name = None  # Default to None if no team is found
+    if user_id:
+        try:
+            # Query to check if the user is part of a team
+            cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+            team_id_result = cursor.fetchone()
+
+            if team_id_result:
+                team_id = team_id_result[0]
+
+                # Query to get the team's name using the Team_ID
+                cursor.execute("SELECT Name FROM Teams_Dim WHERE Team_ID = %s", (team_id,))
+                team_name_result = cursor.fetchone()
+
+                if team_name_result:
+                    user_team_name = team_name_result[0]
+        except Exception as e:
+            print(f"Error fetching team data: {e}")
+
 
     cursor.execute("SELECT Ranking, GamesPlayed, ProfileViews, GamesWon FROM Players_Dim WHERE Name = %s", (username,))
     user_stats = cursor.fetchone()
@@ -645,7 +710,7 @@ def gamer_profile():
         ranking, matches_played, profile_views, games_won = user_stats
     else:
         # Default values if user is not found
-        ranking, matches_played, profile_views, games_won = 0, 0, 0
+        ranking, matches_played, profile_views, games_won = 0, 0, 0,0
 
 
 
@@ -676,7 +741,7 @@ def gamer_profile():
     username = session.get('username') 
 
     profile_image_url = fetch_profile_image_url_from_db('prabbi123')  # Replace with your actual function to fetch the image
-    print(profile_image_url)  # Debugging line
+    #print(profile_image_url)  # Debugging line
 
     cursor.execute("SELECT ID_Var FROM UserRegistration WHERE username =  %s", (username,))
     user_id = cursor.fetchone()
@@ -697,7 +762,7 @@ def gamer_profile():
     # profile_image_url = fetch_profile_image_url(session['username'])
 
     # Render the HTML template with the fetched data and profile image URL
-    return render_template('gamer_profile.html', ranking=ranking,
+    return render_template('gamer_profile.html', ranking=ranking,user_team_name=user_team_name,
                             games_won = games_won,
                            matches_played=matches_played,
                            profile_views=profile_views, 
@@ -747,6 +812,14 @@ def user_enrollments():
     return render_template('user_enrollments.html', data=data)
 
 
+app.route('/upload-image', methods=['POST'])
+def upload_image():
+    if 'profile_image' in request.files:
+        profile_image = request.files['profile_image']
+        if profile_image.filename != '':
+            # Compress the image
+            compressed_image = compress_image(profile_image)
+
 # Route to handle uploading profile images
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
@@ -758,6 +831,7 @@ def upload_image():
     if 'profile_image' in request.files:
         profile_image = request.files['profile_image']
         if profile_image.filename != '':
+
             # Call the function to upload the image to the database for the current user
             if upload_profile_image_to_db(profile_image, username):
                 # Redirect to the gamer profile page on successful upload

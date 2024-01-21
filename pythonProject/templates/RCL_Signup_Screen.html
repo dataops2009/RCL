@@ -111,15 +111,26 @@
         <div class="burger-line"></div>
     </div>
     <i class="fas fa-chevron-left" style="position: fixed; top: 30px; right: 0px; left: 30px;" onclick="window.history.back();"></i>
-    <div class="sidebar" id="sidebar">
-       <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+   <div class="sidebar" id="sidebar">
+    {% if session.username %}
+        <!-- Navigation items for logged-in users -->
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
         <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-        <a class="nav-opacity" href="{{ url_for('signup') }}">Team Management</a>
-        <a class="nav-opacity" href="{{ url_for('login') }}">Team Management</a>
-        
+        <!-- Logout Button -->
+        <form action="{{ url_for('logout') }}" method="post">
+            <button type="submit" class="btn btn-link nav-link logout-button">Logout</button>
+        </form>
+    {% else %}
+        <!-- Navigation items for users not logged in -->
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Signup_Screen') }}">Signup</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+    {% endif %}
+
+
         <div class="nav-opacity" style="text-align: center;" style="position: fixed; top: 100px; right: 0px; left: 30px;">
             <div>
                 Notifications
@@ -161,16 +172,28 @@
         </div>
          <br>
 
-        <div class="text-center py-2 rounded-lg bg-gray-800" >
-            <div class="text-sm">Choose a Strong Password</div>
-            <input type="password" id="password" name="password" placeholder="Password" class="input-field w-full p-2 rounded text-gray-300" required>
-        </div>
+        <div class="text-center py-2 rounded-lg bg-gray-800">
+    <div class="text-sm">Choose a Strong Password</div>
+    <input type="password" id="password" name="password" placeholder="Password" class="input-field w-full p-2 rounded text-gray-300" required>
+    <div id="passwordRequirements" class="text-sm text-gray-400 mt-2">
+        Password must:
+        <ul>
+            <li id="lengthRequirement">Be at least 8 characters long</li>
+            <li id="uppercaseRequirement">Contain at least one uppercase letter</li>
+            <li id="lowercaseRequirement">Contain at least one lowercase letter</li>
+            <li id="numberRequirement">Contain at least one number</li>
+            <li id="specialCharRequirement">Contain at least one special character</li>
+        </ul>
+    </div>
+</div>
          <br>
 
-        <div class="text-center py-2 rounded-lg bg-gray-800">
-            <div class="text-sm">Confirm Password</div>
-            <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" class="input-field w-full p-2 rounded text-gray-300" required>
-        </div>
+        
+<div class="text-center py-2 rounded-lg bg-gray-800">
+    <div class="text-sm">Confirm Password</div>
+    <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" class="input-field w-full p-2 rounded text-gray-300" required>
+    <div id="passwordMatchMessage" class="text-sm text-red-500 mt-2"></div>
+</div>
      <br>
     </div>
         <div >
@@ -183,3 +206,43 @@
 </body>
 </html>
      
+<script>
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirm_password");
+    const passwordRequirements = document.getElementById("passwordRequirements");
+    const passwordMatchMessage = document.getElementById("passwordMatchMessage");
+
+    passwordInput.addEventListener("input", validatePassword);
+    confirmPasswordInput.addEventListener("input", validatePassword);
+
+    function validatePassword() {
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        const lengthRequirement = password.length >= 8;
+        const uppercaseRequirement = /[A-Z]/.test(password);
+        const lowercaseRequirement = /[a-z]/.test(password);
+        const numberRequirement = /\d/.test(password);
+        const specialCharRequirement = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+
+        document.getElementById("lengthRequirement").classList.toggle("text-green-500", lengthRequirement);
+        document.getElementById("uppercaseRequirement").classList.toggle("text-green-500", uppercaseRequirement);
+        document.getElementById("lowercaseRequirement").classList.toggle("text-green-500", lowercaseRequirement);
+        document.getElementById("numberRequirement").classList.toggle("text-green-500", numberRequirement);
+        document.getElementById("specialCharRequirement").classList.toggle("text-green-500", specialCharRequirement);
+
+        const isPasswordValid = lengthRequirement && uppercaseRequirement && lowercaseRequirement && numberRequirement && specialCharRequirement;
+
+        if (isPasswordValid) {
+            passwordRequirements.classList.remove("text-red-500");
+        } else {
+            passwordRequirements.classList.add("text-red-500");
+        }
+
+        if (confirmPassword !== "" && confirmPassword !== password) {
+            passwordMatchMessage.textContent = "Passwords do not match";
+        } else {
+            passwordMatchMessage.textContent = "";
+        }
+    }
+</script>

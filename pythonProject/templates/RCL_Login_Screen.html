@@ -111,17 +111,25 @@
     </div>
    <i class="fas fa-chevron-left" style="position: fixed; top: 30px; right: 0px; left: 30px;" onclick="window.history.back();"></i>
     <div class="sidebar" id="sidebar">
-       <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+    {% if session.username %}
+        <!-- Navigation items for logged-in users -->
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
         <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-        <a class="nav-opacity" href="{{ url_for('signup') }}">Team Management</a>
-        <a class="nav-opacity" href="{{ url_for('login') }}">Team Management</a>
-        <div class="nav-opacity" style="text-align: center;" style="position: fixed; top: 100px; right: 0px; left: 30px;">
-           
+        <!-- Logout Button -->
+        <form action="{{ url_for('logout') }}" method="post">
+            <button type="submit" class="btn btn-link nav-link logout-button">Logout</button>
+        </form>
+    {% else %}
+        <!-- Navigation items for users not logged in -->
+        <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Signup_Screen') }}">Signup</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+    {% endif %}
+</div>
 
-       
 
         </div>
     </div>
