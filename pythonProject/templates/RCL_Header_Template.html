@@ -1,76 +1,121 @@
-<!-- Start of the navigation bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <!-- Brand/logo -->
-        <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
-        <!-- Button for toggling the navigation bar on small screens -->
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-     
-        <!-- Navigation links -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <!-- Home link -->
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
-                </li>
 
-                <!-- If the user is not logged in, show login, forgot password, and sign up links -->
-                {% if 'username' not in session %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Navbar</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        
+        /* Custom styles for navbar items */
+        .navbar-nav .nav-link {
+            margin-right: 10px; /* Adds spacing between navbar items */
+            display: flex;
+            align-items: center; /* Aligns items vertically */
+        }
+
+        .navbar-brand {
+            margin-right: 10px; /* Adds spacing after the logo */
+        }
+
+        .logout-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (min-width: 992px) {
+            .navbar-nav {
+                flex-direction: row;
+                width: 100%;
+            }
+        }
+
+        .navbar {
+            width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .container, .container-fluid {
+            width: 100%;
+            max-width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .navbar-collapse {
+            justify-content: flex-start;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('RCL_Home_Screen') }}">RCL</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                   <!-- Home link -->
+                    <li >
+                        <a class="nav-link" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Forgot_Password_Screen') }}">Forgot Password</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
-                    </li>
-                {% else %}
-                    <!-- Add more links for logged-in users -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_League_Screen') }}">Leagues</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Matches_Screen') }}">Matches</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Player_Profile_Screen') }}">Player Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Recruitment_Centre_Screen') }}">Recruitment Centre</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_My_Account_Screen') }}">My Account</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-                {% endif %}
-                <!-- Additional links can go here -->
-            </ul>
+
+                    <!-- Conditional rendering based on user session -->
+                    {% if 'username' not in session %}
+                        <li >
+                            <a class="nav-link" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
+                        </li>
+                        <li >
+                            <a class="nav-link" href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a>
+                        </li>
+                    {% else %}
+                        <!-- Links for logged-in users -->
+                        <li >
+                            <a class="nav-link" href="{{ url_for('gamer_profile') }}">Gamer Profile</a>
+                        </li>
+                        <li >
+                            <a class="nav-link" href="{{ url_for('RCL_Team_Profile_Screen') }}">Team Profile</a>
+                        </li>
+                        <li >
+                            <a class="nav-link" href="{{ url_for('RCL_Player_Ranking_Screen') }}">Player Ranking</a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="{{ url_for('RCL_Team_Ranking_Screen') }}">Team Ranking</a>
+                        </li>
+                        <li >
+                            <a class="nav-link" href="{{ url_for('RCL_Subcription_Screen') }}">Subscription</a>
+                        </li>
+                        <li >
+                            <a class="nav-link" href="{{ url_for('RCL_Eagle_Eye_Screen') }}">Eagle Eye</a>
+                        </li>
+                        <li >
+                            <form action="{{ url_for('logout') }}" method="post">
+                                <button type="submit" class="btn btn-link nav-link logout-button">Logout</button>
+                            </form>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -141,6 +141,10 @@ def team_management_function():
                        "WHERE tp.Team_ID = %s", (team_id,))
         current_team_players = cursor.fetchall()
 
+        cursor.execute("SELECT Name FROM Teams_Dim WHERE ID = %s", (team_id,))
+        team_name_row = cursor.fetchone()
+        team_name = team_name_row[0] if team_name_row else "Unknown Team"
+
         # Fetch all players for the dropdown
         cursor.execute("SELECT ID_Var, Name FROM Players_Dim")
         all_players = cursor.fetchall()
@@ -148,7 +152,7 @@ def team_management_function():
         cursor.close()
         conn.close()
 
-        return render_template('RCL_Team_Management_Screen.html', team_id=team_id, current_team_players=current_team_players, all_players=all_players)
+        return render_template('RCL_Team_Management_Screen.html', team_id=team_id,team_name=team_name, current_team_players=current_team_players, all_players=all_players)
 
     except Exception as e:
         # Handle exceptions

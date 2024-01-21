@@ -1,150 +1,185 @@
-{% extends 'RCL_Main_Template.html' %}
-
-{% block title %}
-    Team Management
-{% endblock %}
-
-{% block header %}
-    {% include 'RCL_Header_Template.html' %}
-{% endblock %}
-
-{% block content %}
-
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Your existing head elements from the main template -->
-    <!-- Add the styling required for the table, buttons, etc., as per your previous HTML -->
-
-     <style>
-       body {
-    font-family: 'Roboto', sans-serif;
-    color: #f72585;
-    overflow-x: hidden;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1; /* Set z-index to 1 to stack content above the pseudo-element */
-}
-
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: url('vrapes.png'); /* Replace with your actual image URL */
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    opacity: 0.6; /* Adjust the opacity of the background image */
-    z-index: -1; /* Set z-index to -1 to keep the background behind the content */
-}
-        .header {
-            padding: 2rem;
-            text-align: center;
-        }
-
-.header-title {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #f72585;
-    text-shadow: 2px 2px 2px black, /* Black outline for contrast */
-                 0 0 10px black, /* Blue glow */
-                 0 0 20px ; /* Second layer of blue glow for more intensity */
-}
-
-        .management-container {
-            width: 80%;
-            margin: 2rem auto;
-            background-color: rgba(26, 28, 29, 0.8); /* Semi-transparent background for readability */
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            backdrop-filter: blur(5px); /* Blur effect for added depth */
-        }
-
-        .management-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .search-input {
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            border: none;
-            width: 50%;
-            background-color: #2a2c2d;
-            color: white;
-        }
-
-        .button {
-            background-color: #f72585;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            font-weight: 700;
-            text-shadow: 1px 1px 1px black; /* Black outline for contrast */
-            transition: background-color 0.3s ease;
-        }
-
-        .button:hover {
-            background-color: #7209b7;
-        }
-
-        .team-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .team-table th, .team-table td {
-            padding: 0.5rem 1rem;
-            border-bottom: 1px solid #2a2c2d;
-        }
-
-        .team-table th {
-            text-align: left;
-            background-color: #1a1c1d;
-        }
-
-        .team-table tr:hover {
-            background-color: #121314;
-        }
-
-        .team-table .action-buttons .button {
-            margin-right: 0.5rem;
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <header class="header">
-        <h1 class="header-title">Team Management</h1>
-    </header>
-    <p>Team ID: {{ team_id }}</p>
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+    * 
+        body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        /* background-image: url("RCL.png");
+        background-size: 20%; */
+        z-index: -1;
+    }
+        body {
+        font-family: 'Roboto', sans-serif;
+        /* background-image: url('bg_test.png'); */
+        background-color: #111111;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    .burger-menu {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 1000;
+        border-radius: 2px;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px;
+    }
 
-    <div class="management-header">
-        <form method="post">
-            <select name="player_id">
-                {% for player_id, player_name in all_players %}
-                    <option value="{{ player_id }}">{{ player_name }}</option>
-                {% endfor %}
-            </select>
-            <input type="hidden" name="action" value="add">
-            <button type="submit" class="button">Add Player</button>
-        </form>
+    .burger-line {
+        width: 30px;
+        height: 3px;
+        background-color: white;
+        margin: 6px 0;
+        transition: 0.4s;
+    }
+
+    .sidebar {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 500;
+        top: 0;
+        right: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+
+    .sidebar a {
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 22px;
+        color: gray;
+        display: block;
+        transition: 0.15s;
+    }
+    .team-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .team-table thead {
+        background-color: #333;
+        color: white;
+    }
+
+    .team-table th, .team-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .team-table tbody tr:nth-child(odd) {
+        background-color: #f2f2f2;
+    }
+
+    .team-table tbody tr:hover {
+        background-color: #ddd;
+    }
+
+    .action-buttons button {
+        background-color: #4CAF50; /* Green */
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .action-buttons button:hover {
+        background-color: #45a049;
+    }
+
+        
+</style>
+<script>
+    function toggleNav() {
+    var sidebar = document.getElementById("sidebar");
+    var burgerLines = document.querySelectorAll(".burger-line");
+    var items = document.querySelectorAll(".nav-opacity");
+    
+    if (sidebar.style.width === "250px") {
+    sidebar.style.width = "0";
+    burgerLines.forEach(line => {
+    line.style.backgroundColor = "white";
+    
+    });
+    items.forEach(item => {
+    item.classList.remove('active')
+    
+    });
+    } else {
+    sidebar.style.width = "250px";
+    burgerLines.forEach(line => {
+    line.style.backgroundColor = "white";
+    });
+    items.forEach(item => {
+    item.classList.add('active')
+    
+    });
+    }
+    }
+    </script>
+    </head>
+    <body class="bg-[#1B1B1B] text-white">
+        <div class="burger-menu" onclick="toggleNav()">
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+            <div class="burger-line"></div>
+        </div>
+        <div class="sidebar" id="sidebar">
+             <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+        <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+        </div>
+          
+         <H1 style = "text-align:center; top: 10px; position:fixed; font-size:20px; color:red"> Testers!! - Please ignore sidebar, will be added to the right , as well as the width of text boxes - (simple fixes for next iteration) </H1>
+
+       <div style="display: flex; justify-content: center;">
+        <img src="static/images/RCL.png" alt="Girl in a jacket" width="125" height="150" style="position: fixed; top: 25px;">
     </div>
 
-    <h2>Current Team Players</h2>
+<div class="container mx-auto p-4" style="position: fixed; top: 120px; right: 0px; left: 0px;">
+
+    <div class="grid grid-cols-1 gap-4 mb-4">
+        <<div class="text-center py-4 rounded-lg bg-gray-700">
+    <h1 class="text-4xl font-bold text-center text-white">Team Management - {{ team_name }}</h1>
+</div>
+        <div class="text-center py-4 rounded-lg bg-gray-700">
+            <div class="management-header">
+                <form method="post">
+                    <select name="player_id">
+                        {% for player_id, player_name in all_players %}
+                            <option value="{{ player_id }}">{{ player_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="action" value="add">
+                    <button type="submit" class="button">Add Player</button>
+                </form>
+            </div>
+        </div>
+        
+<div class="text-center py-4 rounded-lg bg-gray-700">
     <table class="team-table">
+        <P style  = 'text-align:center'> Manage Current Players </P>
         <thead>
             <tr>
                 <th>Name</th>
@@ -153,43 +188,40 @@ body::before {
             </tr>
         </thead>
         <tbody>
-            {% for team_player_id, team_id, player_id, player_email, player_name in current_team_players %}
+            {% if current_team_players %}
+                {% for team_player_id, team_id, player_id, player_email, player_name in current_team_players %}
+                    <tr>
+                        <td>{{ player_name }}</td>
+                        <td>{{ player_email }}</td>
+                        <td class="action-buttons">
+                            <form method="post" id="remove-form-{{ team_player_id }}">
+                                <input type="hidden" name="action" value="remove">
+                                <input type="hidden" name="player_id" value="{{ team_player_id }}">
+                                <button type="button" class="button" onclick="removePlayer('{{ team_player_id }}')" style="color: white;">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 <tr>
-                    <td>{{ player_name }}</td>
-                    <td>{{ player_email }}</td>
-                    <td class="action-buttons">
-                        <form method="post" id="remove-form-{{ team_player_id }}">
-                            <input type="hidden" name="action" value="remove">
-                            <input type="hidden" name="player_id" value="{{ team_player_id }}">
-                            <button type="button" class="button" onclick="removePlayer('{{ team_player_id }}')">Remove</button>
-                        </form>
-                    </td>
+                    <td colspan="3">No players in the team</td>
                 </tr>
-            {% endfor %}
+            {% endif %}
         </tbody>
     </table>
+</div>
+        <div class="text-center py-4 rounded-lg bg-gray-700">
+            <h2>Change Team Name</h2>
+            <form method="post">
+                <input type="text" name="new_name" placeholder="New Team Name">
+                <input type="hidden" name="action" value="change_name">
+                <button type="submit" class="button">Change Name</button>
+            </form>
+        
+        </div>
+    </div>
 
-    <h2>Change Team Name</h2>
-    <form method="post">
-        <input type="text" name="new_name" placeholder="New Team Name">
-        <input type="hidden" name="action" value="change_name">
-        <button type="submit" class="button">Change Name</button>
-    </form>
 
-    <script>
-        function refreshPage() {
-            location.reload();
-        }
-
-        function removePlayer(playerId) {
-            const form = document.getElementById(`remove-form-${playerId}`);
-            form.submit();
-        }
-    </script>
+</div>
 </body>
-{% endblock %}
-
-{% block footer %}
-    <!-- Add any footer content if needed -->
-{% endblock %}
 </html>

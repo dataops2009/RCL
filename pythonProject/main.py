@@ -12,6 +12,9 @@ import random
 from datetime import datetime, timedelta
 
 from classes.RegistrationClass import SignUpManager
+from PIL import Image
+from io import BytesIO
+import os
 
 from routes.signupfunction import signup_function
 from classes.NotificationClass import NotificationManager
@@ -214,7 +217,39 @@ def enroll():
     # Render the enrollment page with a form
     return render_template('enrollment.html')
 
+@app.route('/TournaLead')
+def tourna_lead():
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login'))
 
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    # Get user ID
+    user_id = get_user_id(username)
+
+    # Get teams and rankings
+    cursor.execute("SELECT t.ID, t.Name, p.Ranking FROM TeamPlayers tp "
+                   "JOIN Teams_Dim t ON tp.Team_ID = t.ID "
+                   "JOIN Players_Dim p ON tp.Player_ID = p.ID_Var "
+                   "WHERE tp.Player_ID = %s", (user_id,))
+    teams_and_rankings = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    no_players = False
+    if not teams_and_rankings:
+        no_players = True
+
+    return render_template('TournaLead.html', 
+                           teams_and_rankings=teams_and_rankings,
+                           no_players=no_players,
+                           username=username)
 
 
 
@@ -293,7 +328,7 @@ def show_notifications():
 
 @app.route('/login', methods=['GET', 'POST'])
 def RCL_Login_Screen():
-    session['username'] = username 
+    username = session.get('username')
     return login_function() # Call the fucntion from loginfunction.py within Routes
 
 #################################################################################################################################################################################################
@@ -306,7 +341,7 @@ def logout():
     session.pop('username', None)  # Remove the 'username' key from the session
 
     # Redirect to the login page or any other page you prefer
-    return redirect(url_for('login'))
+    return redirect(url_for('RCL_Home_Screen'))
 
 ##############################################################################################################################################################################################
 
@@ -361,10 +396,57 @@ def RCL_Forgot_Password_Screen():
     return render_template('RCL_Forgot_Password_Screen.html')
 
 ###################################################################### THE FUNCTIONALITY NEEDS TO GET COMPLETED ############################################################################
-
 @app.route('/tournament')
 def RCL_Tournament_Screen():
-    return render_template('RCL_Tournament_Screen.html')
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login'))
+
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    # Fetch the user's ID_Var
+    cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+    result = cursor.fetchone()
+    user_id = result[0] if result else None
+
+    # Fetch current tournaments and user's enrollment status
+    cursor.execute("SELECT * FROM Tournaments_Dim")
+    current_tournaments = cursor.fetchall()
+
+    enrolled_tournaments = []
+    if user_id:
+        cursor.execute("SELECT tournament_id FROM user_enrollmentss WHERE ID_Var = %s", (user_id,))
+        for row in cursor.fetchall():
+            enrolled_tournaments.append(row[0])
+
+    # Fetch the team ranking of the current user
+    team_ranking = None
+    cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+    team_id_row = cursor.fetchone()
+    if team_id_row:
+        team_id = team_id_row[0]
+        cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
+        ranking_row = cursor.fetchone()
+        if ranking_row:
+            team_ranking = ranking_row[0]
+
+    cursor.close()
+    conn.close()
+
+    return render_template('RCL_Tournament_Screen.html',
+                           current_tournaments=current_tournaments,
+                           enrolled_tournaments=enrolled_tournaments,
+                           team_ranking=team_ranking,
+                           username=username)
+
+
+
+
+
 
 @app.route('/league')
 def RCL_League_Screen():
@@ -451,7 +533,7 @@ def post_chat_message():
 # Route to render the gamer's profile page with the profile image upload form
 @app.route('/gamer-profile', methods=['GET', 'POST'])
 def gamer_profile():
-    username = session['username']
+    username = session.get('username')
     if request.method == 'POST':
         # Check if an image file is uploaded
         if 'profile_image' in request.files:
@@ -463,35 +545,68 @@ def gamer_profile():
                     return "Profile image uploaded successfully!"
 
 
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                                   user='rcldeveloper',
+                                   password='media$2009',
+                                   database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+
+    conn.commit()
+    
+    result = cursor.fetchone()
+    user_id = result[0] if result else None
+
+    enrolled_tournaments = []
+    if user_id:
+        # Fetch tournaments in which the user is enrolled
+        cursor.execute("SELECT tournament_id FROM user_enrollments WHERE ID_Var = %s", (user_id,))
+        tournaments = cursor.fetchall()
+        for tournament in tournaments:
+            # Assuming tournament_id is enough for display, otherwise join with tournaments table to fetch more details
+            enrolled_tournaments.append(tournament[0])
+
 
     #username = session['username']
     user_id = get_user_id(username)  # Make sure you have this function to get the user's ID
+    print(user_id)
 
+    
     if request.method == 'POST':
-        # Handle Tournament Enrollment
         if 'tournament_id' in request.form:
             tournament_id = request.form['tournament_id']
 
-            if not is_user_enrolled(user_id, tournament_id):
-                # Insert enrollment into the database
-                conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
-                                       user='rcldeveloper',
-                                       password='media$2009',
-                                       database='rcldevelopmentdatabase')
-                cursor = conn.cursor()
-                cursor.execute("INSERT INTO user_enrollmentss (ID_Var, tournament_id) VALUES (%s, %s)", (user_id, tournament_id))
-                #print(user_id)
-                cursor.execute("UPDATE Notifications SET read_status = 'true' WHERE ID_Var = %s", (user_id,))
+            conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                                   user='rcldeveloper',
+                                   password='media$2009',
+                                   database='rcldevelopmentdatabase')
+            cursor = conn.cursor()
+
+            cursor.execute("UPDATE Notifications SET read_status = 'true' WHERE ID_Var = %s", (user_id,))
+
+            conn.commit()
+
+            try:
+                if not is_user_enrolled(user_id, tournament_id):
+                    cursor.execute("INSERT INTO user_enrollmentss (ID_Var, tournament_id) VALUES (%s, %s)", 
+                                   (user_id, tournament_id))
+                    
+
+                    conn.commit()
+                    flash(f"You have successfully enrolled in tournament {tournament_id}.", "success")
+                else:
+                    flash("You are already enrolled in this tournament.", "info")
+
+            except Exception as e:
+                conn.rollback()  # Rollback in case of error
+                flash(f'An error occurred: {str(e)}', 'error')
+
+            finally:
+                cursor.close()
+                conn.close()
 
 
-                conn.commit()
-                #cursor.close()
-               # conn.close()
-
-                flash(f"You have successfully enrolled in tournament {tournament_id}.", "success")
-
-            else:
-                flash("You are already enrolled in this tournament.", "info")
 
 
     conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
@@ -502,10 +617,55 @@ def gamer_profile():
 
     cursor = conn.cursor()
 
+
+   # Check if the user is a captain, co-captain, or a team player
+    cursor.execute("SELECT ur.ID_Var, tp.Team_ID FROM UserRegistration ur JOIN TeamPlayers tp ON ur.ID_Var = tp.Player_ID WHERE ur.Username = %s", (username,))
+    user_team_result = cursor.fetchone()
+
+    user_role = "Not part of a team"
+    if user_team_result:
+        user_id, team_id = user_team_result
+        cursor.execute("SELECT CaptainID, CoCaptainID FROM Teams_Dim WHERE Team_ID = %s", (team_id,))
+        captain_result = cursor.fetchone()
+        if captain_result:
+            if captain_result[0] == user_id:
+                user_role = "Captain"
+            elif len(captain_result) > 1 and captain_result[1] == user_id:
+                user_role = "Co-Captain"
+            else:
+                user_role = "Team Player"
+
+
+
+    cursor.execute("SELECT Ranking, GamesPlayed, ProfileViews, GamesWon FROM Players_Dim WHERE Name = %s", (username,))
+    user_stats = cursor.fetchone()
+
+    # Ensure user_stats is not None
+    if user_stats:
+        ranking, matches_played, profile_views, games_won = user_stats
+    else:
+        # Default values if user is not found
+        ranking, matches_played, profile_views, games_won = 0, 0, 0
+
+
+
     cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
 
    
-    user_id = cursor.fetchone()[0]
+    result = cursor.fetchone()
+
+    if result is not None:
+        user_id = result[0]
+        # Proceed with the rest of your logic using user_id
+
+        # ... rest of your code that depends on user_id ...
+
+    else:
+        # User not found in the database
+        # You can redirect them to a login page or show an error message
+        flash('User not found. Please log in.', 'error')
+        return redirect(url_for('RCL_Home_Screen'))  # Replace 'login' with the name of your login route
+    #user_id = cursor.fetchone()[0]
 
         # Get notifications for the user
     notifications = notification_manager.get_notifications(user_id)  # <-- Add this line
@@ -537,7 +697,16 @@ def gamer_profile():
     # profile_image_url = fetch_profile_image_url(session['username'])
 
     # Render the HTML template with the fetched data and profile image URL
-    return render_template('gamer_profile.html', tournament_alerts=tournament_alerts, notifications=notifications,  achievements_data=achievements_data, leaderboard_data=leaderboard_data,  profile_image_url=profile_image_url, username = username)
+    return render_template('gamer_profile.html', ranking=ranking,
+                            games_won = games_won,
+                           matches_played=matches_played,
+                           profile_views=profile_views, 
+                           tournament_alerts=tournament_alerts, 
+                           notifications=notifications,  
+                           achievements_data=achievements_data, 
+                           leaderboard_data=leaderboard_data,  
+                           profile_image_url=profile_image_url, user_role = user_role ,enrolled_tournaments=enrolled_tournaments,
+                           username = username)
 
 
 def get_data():
@@ -546,6 +715,8 @@ def get_data():
     data = cursor.fetchall()
     
     return data
+
+
 @app.route('/enrollments', methods=['GET', 'POST'])
 def user_enrollments():
     if request.method == 'POST':
@@ -561,29 +732,48 @@ def user_enrollments():
             enroll_user(user_id, tournament_id)
             flash("Enrollment successful!")
 
+
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                                   user='rcldeveloper',
+                                   password='media$2009',
+                                   database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        cursor.execute("UPDATE Notifications SET read_status = 'true' WHERE ID_Var = %s", (user_id,))
+
+        conn.commit()
+
     data = get_data()  # This function should fetch enrollment data
     return render_template('user_enrollments.html', data=data)
 
 
-
-
-# Route to handle uploading other images
+# Route to handle uploading profile images
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
+    # Fetch the currently logged-in username from the session
+    username = session.get('username')
+    if not username:
+        return "User is not logged in."
+
     if 'profile_image' in request.files:
         profile_image = request.files['profile_image']
         if profile_image.filename != '':
-            # Call the function to upload the image to the database
-            if upload_profile_image_to_db(profile_image, 'prabbi123'):
-                #return "Image uploaded successfully!"
+            # Call the function to upload the image to the database for the current user
+            if upload_profile_image_to_db(profile_image, username):
+                # Redirect to the gamer profile page on successful upload
                 return redirect(url_for('gamer_profile'))
             else:
+                # Return an error message if the upload fails
                 return "Failed to upload image to the database."
         else:
+            # Return an error message if no file is selected
             return "No file selected for upload."
-    return "Invalid request. Please upload an image."
+    else:
+        # Return an error message for invalid requests
+        return "Invalid request. Please upload an image."
 
 def fetch_profile_image_url_from_db(username):
+    username = session.get('username') 
     try:
         # Connect to the database
         conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
@@ -591,10 +781,11 @@ def fetch_profile_image_url_from_db(username):
                                password='media$2009',
                                database='rcldevelopmentdatabase')
         cursor = conn.cursor()
+        
 
         # SQL query to fetch the profile image BLOB
         query = 'SELECT ProfileImageColumn FROM UserRegistration WHERE Username = %s'
-        cursor.execute(query, ('prabbi123',))
+        cursor.execute(query, (username,))
         result = cursor.fetchone()
 
         # Close the database connection

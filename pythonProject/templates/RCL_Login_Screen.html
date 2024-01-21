@@ -1,94 +1,171 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>Profile Page</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
     <style>
-        .background {
-            background: linear-gradient(135deg, rgba(102, 116, 234, 1) 0%, rgba(94, 74, 104, 1) 100%);
+    @import url('https://fonts.googleapis.com/css?family=Muli&display=swap');
+    * 
+            body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            /* background-image: url("RCL.png");
+            background-size: 20%; */
+            z-index: -1;
         }
-        .form-container {
-            backdrop-filter: blur(10px);
-            background-color: rgba(17, 25, 40, 0.75);
-            margin-left: 16%; /* Adjust based on sidebar width */
-            flex-grow: 1; /* Ensures it takes up the remaining width */
+            body {
+            font-family: 'Roboto', sans-serif;
+            /* background-image: url('bg_test.png'); */
+            background-color: #111111;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
         }
-        .input-field {
-            background-color: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .burger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            border-radius: 2px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px;
         }
-        .sidebar {
-            width: 16%; /* Adjust as needed */
-            background-color: #1a1a1a;
-            height: 100vh;
-            position: fixed; /* Sidebar remains fixed during scroll */
-        }
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .sidebar ul li a {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: white; /* Adjust link color as needed */
-            text-decoration: none; /* Removes underline from links */
-            border-bottom: 1px solid #333;
-        }
-        .sidebar ul li a:hover {
-            background-color: #333; /* Hover effect */
-        }
-    </style>
-</head>
-<body class="background font-roboto flex">
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <ul>
-            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-users"></i> Players</a></li>
-            <li><a href="{{ url_for('RCL_Create_Team_Screen') }}"><i class="fas fa-users"></i> Teams</a></li>
+        .burger-line {
+            width: 30px;
+            height: 3px;
+            background-color: white;
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 500;
+            top: 0;
+            right: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 22px;
+            color: gray;
+            display: block;
+            transition: 0.15s;
+        }
+
+        
+        .fas.fa-chevron-left:hover {
+    cursor: pointer;
+}
+    </style>
+    <script>
+        function toggleNav() {
+            var sidebar = document.getElementById("sidebar");
+            var burgerLines = document.querySelectorAll(".burger-line");
+            var items = document.querySelectorAll(".nav-opacity");
+            
+            if (sidebar.style.width === "250px") {
+                sidebar.style.width = "0";
+                burgerLines.forEach(line => {
+                    line.style.backgroundColor = "white";
+                    
+                });
+                items.forEach(item => {
+                    item.classList.remove('active')
+                    
+                });
+            } else {
+                sidebar.style.width = "250px";
+                burgerLines.forEach(line => {
+                    line.style.backgroundColor = "white";
+                });
+                items.forEach(item => {
+                    item.classList.add('active')
+                    
+                });
+            }
+        }
+    </script>
+</head>
+    <body class="text-white">
+    <div class="burger-menu" onclick="toggleNav()">
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+    </div>
+   <i class="fas fa-chevron-left" style="position: fixed; top: 30px; right: 0px; left: 30px;" onclick="window.history.back();"></i>
+    <div class="sidebar" id="sidebar">
+       <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
+        <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
+        <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
+        <a class="nav-opacity" href="{{ url_for('signup') }}">Team Management</a>
+        <a class="nav-opacity" href="{{ url_for('login') }}">Team Management</a>
+        <div class="nav-opacity" style="text-align: center;" style="position: fixed; top: 100px; right: 0px; left: 30px;">
            
-        </ul>
+
+       
+
+        </div>
+    </div>
+    <div style="display: flex; justify-content: center;">
+        <img src="static/images/RCL.png" alt="Girl in a jacket" width="250" height="300" style="position: fixed; top: 25px;">
     </div>
 
 
-    <br>
-    <br>
-    <div class="form-container p-8 rounded-lg">
-        <!-- Sign Up Title -->
-        <h1 class="text-white text-2xl mb-4 text-center">Sign Up</h1>
-        <!-- Retain the form's action and method from the other code -->
-        <form method="POST" action="{{ url_for('RCL_Login_Screen') }}" id="loginForm">
-            <!-- Username field -->
-            <div class="mb-4">
+<div class="container mx-auto p-4" style="position: fixed; top: 230px; right: 0px; left: 0px;">
+    
+    <div class="text-center">
+        <p class="font-bold text-1g">Login</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('RCL_Login_Screen') }}" id="loginForm">
+        <div class="grid grid-cols-1 gap-4 mb-4">
+
+            <div class="text-center py-4 rounded-lg bg-gray-800">
                 <input type="text" id="username" name="username" placeholder="Username" class="input-field w-full p-2 rounded text-gray-300" required>
+            
             </div>
-            <!-- Password field -->
-            <div class="mb-4">
+            <div class="text-center py-4 rounded-lg bg-gray-800">
                 <input type="password" id="password" name="password" placeholder="Password" class="input-field w-full p-2 rounded text-gray-300" required>
             </div>
-            <!-- Submit button -->
-            <div class="mb-4">
-                <button type="submit" class="w-full p-2 rounded bg-blue-600 text-white">Login</button>
+        
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+        
+            <div class="text-center py-4 rounded-lg bg-gray-800">
+                <button type="submit" >Login</button>
             </div>
-        </form>
-        <!-- Link for Forgot Password -->
-        <div class="mb-4">
+            <div class="text-center py-4 rounded-lg bg-gray-800">
+                <a href="Sign-Up.html" class="text-sm">Sign Up</a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
             <a href="#">Forgot your password?</a>
         </div>
         <!-- Link to Sign Up -->
         <p>Don't have an account? <a href="{{ url_for('RCL_Signup_Screen') }}">Sign Up</a></p>
-    </div>
-
-    <script>
-        // Add any JavaScript functionality needed for your form here.
-    </script>
+    </form>
+</div>
 </body>
 </html>
+
+     

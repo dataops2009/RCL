@@ -1,13 +1,14 @@
-html {
-    height: 100%;
-  }
-  body {
-    margin:0;
-    padding:0;
-    font-family: sans-serif;
-    background: linear-gradient(#141e30, #243b55);
-  }
-  
+
+  html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: linear-gradient(#141e30, #243b55);
+  width: 100vw; /* Adjusted from 115vw to 100vw */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
   #breacherlogo {
     transform: scale(13%);
     position: relative;

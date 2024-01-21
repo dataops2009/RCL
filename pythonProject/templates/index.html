@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Tournament</title>
+</head>
+<body>
+    <h1>Select a Tournament</h1>
+    <div id="tournament-selection">
+        {% for id, tName in tournaments %}
+        <div class="tournament">
+            <h2>{{ tName }}</h2>
+            <button onclick="location.href='/upload?tournament={{ id }}&stage=initial'">Initial Stage</button>
+            <button onclick="location.href='/upload?tournament={{ id }}&stage=final'">Final Stage</button>
+            <button onclick="location.href='/upload?tournament={{ id }}&stage=lastMatch'">Pair Last Two Winners</button>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
