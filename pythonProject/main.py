@@ -441,13 +441,17 @@ def compress_image(image, max_size=800, quality=85):
 
     return img_io
 
-###################################################################### THE FUNCTIONALITY NEEDS TO GET COMPLETED ############################################################################
+
+
+
+
 @app.route('/tournament')
 def RCL_Tournament_Screen():
     username = session.get('username')
     if not username:
         return redirect(url_for('login'))
 
+    # Database connection
     conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
                            user='rcldeveloper',
                            password='media$2009',
@@ -459,26 +463,31 @@ def RCL_Tournament_Screen():
     result = cursor.fetchone()
     user_id = result[0] if result else None
 
-    # Fetch current tournaments and user's enrollment status
-    cursor.execute("SELECT * FROM Tournaments_Dim")
+    # Process search query if present
+    search_query = request.args.get('search')
+    if search_query:
+        cursor.execute("SELECT * FROM Tournaments_Dim WHERE tName LIKE %s", ('%' + search_query + '%',))
+    else:
+        cursor.execute("SELECT * FROM Tournaments_Dim")
     current_tournaments = cursor.fetchall()
 
+    # Fetch user's enrolled tournaments
     enrolled_tournaments = []
     if user_id:
         cursor.execute("SELECT tournament_id FROM user_enrollmentss WHERE ID_Var = %s", (user_id,))
-        for row in cursor.fetchall():
-            enrolled_tournaments.append(row[0])
+        enrolled_tournaments = [row[0] for row in cursor.fetchall()]
 
     # Fetch the team ranking of the current user
     team_ranking = None
-    cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
-    team_id_row = cursor.fetchone()
-    if team_id_row:
-        team_id = team_id_row[0]
-        cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
-        ranking_row = cursor.fetchone()
-        if ranking_row:
-            team_ranking = ranking_row[0]
+    if user_id:
+        cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+        team_id_row = cursor.fetchone()
+        if team_id_row:
+            team_id = team_id_row[0]
+            cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
+            ranking_row = cursor.fetchone()
+            if ranking_row:
+                team_ranking = ranking_row[0]
 
     cursor.close()
     conn.close()
@@ -488,8 +497,6 @@ def RCL_Tournament_Screen():
                            enrolled_tournaments=enrolled_tournaments,
                            team_ranking=team_ranking,
                            username=username)
-
-
 
 
 

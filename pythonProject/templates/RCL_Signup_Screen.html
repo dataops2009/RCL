@@ -16,13 +16,13 @@
             right: 0;
             bottom: 0;
             left: 0;
-            /* background-image: url("RCL.png");
+            
             background-size: 20%; */
             z-index: -1;
         }
             body {
             font-family: 'Roboto', sans-serif;
-            /* background-image: url('bg_test.png'); */
+            background-image: url('static/images/bg_test.png');
             background-color: #111111;
             background-size: cover;
             background-repeat: no-repeat;
@@ -50,7 +50,7 @@
         .sidebar {
             height: 100%;
             width: 0;
-            position: fixed;
+            position: relative:;
             z-index: 500;
             top: 0;
             right: 0;
@@ -72,6 +72,83 @@
         .fas.fa-chevron-left:hover {
     cursor: pointer;
 }
+
+<
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #111111;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        color: white;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+    .burger-menu {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 1000;
+        border-radius: 2px;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 5px;
+    }
+
+    .burger-line {
+        width: 30px;
+        height: 3px;
+        background-color: white;
+        margin: 6px 0;
+        transition: 0.4s;
+    }
+
+    .sidebar {
+        height: 100%;
+        width: 0;
+        position:fixed;
+        z-index: 500;
+        top: 0;
+        right: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+    }
+
+    .sidebar a {
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 22px;
+        color: gray;
+        display: block;
+        transition: 0.15s;
+    }
+
+    .sidebar a:hover {
+        color: #f1f1f1;
+    }
+
+    .fas.fa-chevron-left {
+        
+        top: 30px;
+        left: 30px;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    /* Additional styles for content */
+    .content {
+        margin-top: 60px; /* Adjusted to push content down */
+    }
+
+    /* Style adjustments for scrollable content */
+    .container {
+        padding: 20px;
+    }
 
         
     </style>
@@ -104,13 +181,17 @@
         }
     </script>
 </head>
+
+    <div style="display: flex; justify-content: center;">
+         <img src="static/images/RCL.png" alt="RCL logo" width="125" height="150" style="margin-top:25px;">
+    </div>
     <body class="text-white">
     <div class="burger-menu" onclick="toggleNav()">
         <div class="burger-line"></div>
         <div class="burger-line"></div>
         <div class="burger-line"></div>
     </div>
-    <i class="fas fa-chevron-left" style="position: fixed; top: 30px; right: 0px; left: 30px;" onclick="window.history.back();"></i>
+    <i class="fas fa-chevron-left" style="position:relative; top: 30px; right: 0px; left: 30px;" onclick="window.history.back();"></i>
    <div class="sidebar" id="sidebar">
     {% if session.username %}
         <!-- Navigation items for logged-in users -->
@@ -138,16 +219,14 @@
 
         </div>
     </div>
+    <
    
-    <div style="display: flex; justify-content: center;">
-        <img src="static/images/RCL.png" alt="Girl in a jacket" width="125" height="150" style="position: fixed; top: 25px;">
-    </div>
     <br>
 
   <br>
   <br>
 
-<div class="container mx-auto p-4" style="position: fixed; top: 120px; right: 0px; left: 0px;">
+<div class="container mx-auto p-4" style="position:relative; margin-top: -000px";>
     
     <div class="text-center">
         <br>
@@ -186,15 +265,13 @@
         </ul>
     </div>
 </div>
-         <br>
-
-        
+      
 <div class="text-center py-2 rounded-lg bg-gray-800">
     <div class="text-sm">Confirm Password</div>
     <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter Password" class="input-field w-full p-2 rounded text-gray-300" required>
     <div id="passwordMatchMessage" class="text-sm text-red-500 mt-2"></div>
 </div>
-     <br>
+    
     </div>
         <div >
 
@@ -246,3 +323,10 @@
         }
     }
 </script>
+
+
+
+
+
+
+
