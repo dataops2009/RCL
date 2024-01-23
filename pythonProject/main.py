@@ -202,6 +202,80 @@ def enroll_user(user_id, tournament_id):
     conn.close()
 
 
+
+
+
+@app.route('/tournament')
+def RCL_Tournament_Screen():
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login'))
+
+    # Database connection
+    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                           user='rcldeveloper',
+                           password='media$2009',
+                           database='rcldevelopmentdatabase')
+    cursor = conn.cursor()
+
+    # Fetch the user's ID_Var
+    cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
+    result = cursor.fetchone()
+    user_id = result[0] if result else None
+
+    # Process search query if present
+    search_query = request.args.get('search')
+    if search_query:
+        cursor.execute("SELECT * FROM Tournaments_Dim WHERE tName LIKE %s", ('%' + search_query + '%',))
+    else:
+        cursor.execute("SELECT * FROM Tournaments_Dim")
+    current_tournaments = cursor.fetchall()
+
+    # Fetch user's enrolled tournaments
+    enrolled_tournaments = []
+    if user_id:
+        cursor.execute("SELECT tournament_id FROM user_enrollmentss WHERE ID_Var = %s", (user_id,))
+        enrolled_tournaments = [row[0] for row in cursor.fetchall()]
+
+    # Fetch the team ranking of the current user
+    team_ranking = None
+    if user_id:
+        cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+        team_id_row = cursor.fetchone()
+        if team_id_row:
+            team_id = team_id_row[0]
+            cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
+            ranking_row = cursor.fetchone()
+            if ranking_row:
+                team_ranking = ranking_row[0]
+
+    cursor.close()
+    conn.close()
+
+    return render_template('RCL_Tournament_Screen.html',
+                           current_tournaments=current_tournaments,
+                           enrolled_tournaments=enrolled_tournaments,
+                           team_ranking=team_ranking,
+
+              
+
+                           username=username)
+
+@app.route('/enroll_tournament', methods=['POST'])
+def enroll_tournament():
+    data = request.get_json()
+    username = data['username']
+    tournament_id = data['tournament_id']
+    
+    user_id = get_user_id(username)
+    
+    if user_id and not is_user_enrolled(user_id, tournament_id):
+        enroll_user(user_id, tournament_id)
+        return jsonify(success=True, message="Enrollment successful")
+    else:
+        return jsonify(success=False, message="User already enrolled or not found")
+
+
 # Route to the enrollment page
 @app.route('/enroll', methods=['GET', 'POST'])
 def enroll():
@@ -445,58 +519,52 @@ def compress_image(image, max_size=800, quality=85):
 
 
 
-@app.route('/tournament')
-def RCL_Tournament_Screen():
-    username = session.get('username')
-    if not username:
-        return redirect(url_for('login'))
+def fetch_banner_image_url_from_db(username):
+    username = session.get('username') 
+    try:
+        # Connect to the database
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                               user='rcldeveloper',
+                               password='media$2009',
+                               database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+        
+        # SQL query to fetch the profile image BLOB
+        query = 'SELECT PlayerBackground FROM UserRegistration WHERE Username = %s'
+        cursor.execute(query, (username,))
+        result = cursor.fetchone()
 
-    # Database connection
-    conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
-                           user='rcldeveloper',
-                           password='media$2009',
-                           database='rcldevelopmentdatabase')
-    cursor = conn.cursor()
+        # Close the database connection
+        conn.close()
 
-    # Fetch the user's ID_Var
-    cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (username,))
-    result = cursor.fetchone()
-    user_id = result[0] if result else None
+        if result and result[0] is not None:
+            # Convert BLOB to base64 string
+            profile_image_blob = result[0]
+            profile_image_base64 = base64.b64encode(profile_image_blob).decode("utf-8")
+            return f"data:image/jpeg;base64,{profile_image_base64}"
+        else:
+            return None  # No result or no image found for the given username
 
-    # Process search query if present
-    search_query = request.args.get('search')
-    if search_query:
-        cursor.execute("SELECT * FROM Tournaments_Dim WHERE tName LIKE %s", ('%' + search_query + '%',))
-    else:
-        cursor.execute("SELECT * FROM Tournaments_Dim")
-    current_tournaments = cursor.fetchall()
+    except Exception as e:
+        print(f"An error occurred while fetching the profile image URL: {str(e)}")
+        return None
 
-    # Fetch user's enrolled tournaments
-    enrolled_tournaments = []
-    if user_id:
-        cursor.execute("SELECT tournament_id FROM user_enrollmentss WHERE ID_Var = %s", (user_id,))
-        enrolled_tournaments = [row[0] for row in cursor.fetchall()]
 
-    # Fetch the team ranking of the current user
-    team_ranking = None
-    if user_id:
-        cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
-        team_id_row = cursor.fetchone()
-        if team_id_row:
-            team_id = team_id_row[0]
-            cursor.execute("SELECT Ranking FROM Teams_Dim WHERE ID = %s", (team_id,))
-            ranking_row = cursor.fetchone()
-            if ranking_row:
-                team_ranking = ranking_row[0]
 
-    cursor.close()
-    conn.close()
+def upload_banner_image_to_db(banner_image, username):
+    try:
+        conn = pymssql.connect(...)
+        cursor = conn.cursor()
 
-    return render_template('RCL_Tournament_Screen.html',
-                           current_tournaments=current_tournaments,
-                           enrolled_tournaments=enrolled_tournaments,
-                           team_ranking=team_ranking,
-                           username=username)
+        image_data = banner_image.read()
+        cursor.execute('UPDATE UserRegistration SET PlayerBackground = %s WHERE Username = %s',
+                       (image_data, username))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Error uploading banner image: {e}")
+        return False
 
 
 
@@ -582,6 +650,45 @@ def post_chat_message():
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error', 'message': 'User not logged in'})
 
+def upload_profile_image_to_db(profile_image, username):
+    if not allowed_file(profile_image.filename):
+        flash('Invalid file format. Please upload a valid image.', 'error')
+        return False
+
+    # Generate a unique filename for the image
+    filename = secure_filename(profile_image.filename)
+    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    profile_image.save(upload_path)
+
+    # Compress and resize the image
+    compressed_image_path = compress_and_resize_image(upload_path)
+
+    # Store the compressed image path in the database
+    store_image_in_database(username, compressed_image_path)
+
+    return True
+
+def upload_and_store_image(profile_image, username):
+    if not allowed_file(profile_image.filename):
+        flash('Invalid file format. Please upload a valid image.', 'error')
+        return None
+
+    # Generate a unique filename for the image
+    filename = secure_filename(profile_image.filename)
+    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    profile_image.save(upload_path)
+
+    # Generate the URL for the uploaded image (you may need to adjust the URL structure)
+    image_url = f'/uploads/{filename}'  # Example URL format
+
+    # Store the image URL in the database
+    if store_image_url_in_database(username, image_url):
+        return image_url
+    else:
+        flash('Failed to store image URL in the database.', 'error')
+        return None
+
+
 
 # Route to render the gamer's profile page with the profile image upload form
 @app.route('/gamer-profile', methods=['GET', 'POST'])
@@ -626,6 +733,7 @@ def gamer_profile():
     print(user_id)
 
     
+
     if request.method == 'POST':
         if 'tournament_id' in request.form:
             tournament_id = request.form['tournament_id']
@@ -763,13 +871,13 @@ def gamer_profile():
     cursor.close()
 
     #return render_template('gamer_profile.html', tournament_alerts=tournament_alerts)
-    
+    banner_image_url = fetch_banner_image_url_from_db(username)
 
     # Fetch the user's profile image URL (modify as per your schema)
     # profile_image_url = fetch_profile_image_url(session['username'])
 
     # Render the HTML template with the fetched data and profile image URL
-    return render_template('gamer_profile.html', ranking=ranking,user_team_name=user_team_name,
+    return render_template('gamer_profile.html', ranking=ranking,user_team_name=user_team_name, banner_image_url=banner_image_url,
                             games_won = games_won,
                            matches_played=matches_played,
                            profile_views=profile_views, 
@@ -780,6 +888,24 @@ def gamer_profile():
                            profile_image_url=profile_image_url, user_role = user_role ,enrolled_tournaments=enrolled_tournaments,
                            username = username)
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'jpeg', 'png', 'gif'}
+
+def resize_and_compress_image(profile_image):
+    try:
+        # Open the image using PIL
+        img = Image.open(profile_image)
+
+        # Resize the image to a smaller resolution (e.g., 100x100 pixels)
+        img.thumbnail((100, 100))
+
+        # Save the compressed and resized image
+        img.save('path_to_save_compressed_image', 'JPEG', quality=70)
+
+        return True
+    except Exception as e:
+        print(f"Error while resizing and compressing image: {str(e)}")
+        return False
 
 def get_data():
     
@@ -819,39 +945,38 @@ def user_enrollments():
     return render_template('user_enrollments.html', data=data)
 
 
-app.route('/upload-image', methods=['POST'])
-def upload_image():
-    if 'profile_image' in request.files:
-        profile_image = request.files['profile_image']
-        if profile_image.filename != '':
-            # Compress the image
-            compressed_image = compress_image(profile_image)
 
-# Route to handle uploading profile images
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     # Fetch the currently logged-in username from the session
     username = session.get('username')
     if not username:
-        return "User is not logged in."
+        flash("User is not logged in.", "error")
+        return redirect(url_for('RCL_Login_Screen'))
 
-    if 'profile_image' in request.files:
-        profile_image = request.files['profile_image']
-        if profile_image.filename != '':
-
-            # Call the function to upload the image to the database for the current user
-            if upload_profile_image_to_db(profile_image, username):
-                # Redirect to the gamer profile page on successful upload
-                return redirect(url_for('gamer_profile'))
-            else:
-                # Return an error message if the upload fails
-                return "Failed to upload image to the database."
+    # Check if the post request has the file part
+    if 'profile_image' not in request.files:
+        flash('No file part', 'error')
+        return redirect(request.url)
+    
+    profile_image = request.files['profile_image']
+    
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if profile_image.filename == '':
+        flash('No selected file', 'error')
+        return redirect(request.url)
+    
+    if profile_image and allowed_file(profile_image.filename):
+        if upload_profile_image_to_db(profile_image, username):
+            flash('Image successfully uploaded', 'success')
+            return redirect(url_for('gamer_profile'))
         else:
-            # Return an error message if no file is selected
-            return "No file selected for upload."
-    else:
-        # Return an error message for invalid requests
-        return "Invalid request. Please upload an image."
+            flash('Failed to upload image', 'error')
+
+    flash('Invalid file format.', 'error')
+    return redirect(url_for('gamer_profile'))
+
 
 def fetch_profile_image_url_from_db(username):
     username = session.get('username') 
@@ -1166,6 +1291,52 @@ def my_teams():
 
 
 
+def upload_banner_image_to_db(banner_image, username):
+    try:
+        # Open a new database connection
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                               user='rcldeveloper',
+                               password='media$2009',
+                               database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+
+        # Read the image file and prepare it for binary database storage
+        image_data = banner_image.read()
+
+        # Update the PlayerBackground column for the user in the UserRegistration table
+        cursor.execute('UPDATE UserRegistration SET PlayerBackground = %s WHERE Username = %s',
+                       (image_data, username))
+        conn.commit()
+
+        # Close the database connection
+        cursor.close()
+        conn.close()
+        
+        return True
+    except Exception as e:
+        print(f"An error occurred while uploading the banner image: {e}")
+        return False
+
+@app.route('/upload-banner-image', methods=['POST'])
+def upload_banner_image():
+    username = session.get('username')
+    if not username:
+        flash("You must be logged in to upload a banner image.", "error")
+        return redirect(url_for('login'))
+
+    if 'banner_image' in request.files:
+        banner_image = request.files['banner_image']
+        if banner_image and allowed_file(banner_image.filename):
+            success = upload_banner_image_to_db(banner_image, username)
+            if success:
+                flash("Banner image uploaded successfully.", "success")
+                return redirect(url_for('gamer_profile'))
+            else:
+                flash("Failed to upload banner image.", "error")
+        else:
+            flash("Invalid file format.", "error")
+
+    return redirect(url_for('gamer_profile'))
 
 
 
@@ -1174,3 +1345,4 @@ def my_teams():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

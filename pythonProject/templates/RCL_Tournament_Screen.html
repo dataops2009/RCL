@@ -147,14 +147,6 @@
       text-align: center;
     }
 
-    .enrolled-button {
-      background-color: #4CAF50; /* Green color for enrolled button */
-    }
-
-    .enroll-button {
-      background-color: #f44336; /* Red color for enroll button */
-    }
-
     .ranking-button {
       background-color: #FF9800; /* Orange color for ranking button */
     }
@@ -200,16 +192,134 @@
   text-decoration: none; /* Remove underline from links */
 }
 
-.enrolled-button {
-  background-color: #4CAF50; /* Green color for enrolled button */
-}
 
-.enroll-button {
-  background-color: #f44336; /* Red color for enroll button */
-}
 
 .ranking-button {
   background-color: #FF9800; /* Orange color for ranking button */
+}
+
+.search-bar {
+    font-size: 1rem; /* Larger font size for search input */
+    padding: 12px 20px; /* More padding for larger click area */
+    width: 100%; /* Use full width of the container */
+    margin-bottom: 1rem; /* Add space below the search bar */
+    border-radius: 8px; /* Rounded corners for modern look */
+    border: none; /* Remove border */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+}
+
+/* Button Styles */
+button {
+    padding: 10px 15px; /* Uniform padding for buttons */
+    font-size: 1rem; /* Standard font size for buttons */
+    border-radius: 8px; /* Rounded corners for buttons */
+    border: none; /* Remove borders from buttons */
+    cursor: pointer; /* Cursor pointer to indicate clickability */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+button:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Hover effect for depth */
+}
+
+/* Button Container Styles */
+.button-container {
+    justify-content: space-between; /* Distribute buttons evenly */
+}
+
+/* Tournament Item Styles */
+.tournament-item {
+    box-shadow: 0 6px 10px rgba(0,0,0,0.1); /* Add shadow for each tournament item */
+    border-radius: 8px; /* Rounded corners for the container */
+    margin-bottom: 2rem; /* Increase space between tournament items */
+}
+
+/* Search Bar Wrapper Styles */
+.search-bar-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Search Bar Input Styles */
+.search-bar {
+    flex-grow: 1;
+    padding: 12px 40px 12px 20px; /* Adjust padding to make space for the icon */
+    border-radius: 8px; /* Rounded corners */
+    border: 2px solid #ccc; /* Add a border if you like */
+    font-size: 1rem;
+}
+
+/* Search Icon Button Styles */
+.search-icon-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0 15px;
+    color: white; /* Match the color with your design */
+    cursor: pointer;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ccc;
+    pointer-events: none; /* Makes the icon non-interactive */
+}
+
+.enroll-button {
+    background-color: #f44336; /* Red color for enroll button */
+    color: white; /* White text color */
+    border: none; /* No border */
+    cursor: pointer;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    width:100px;
+}
+
+.enroll-button:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+
+    background-color: green;
+}
+
+.enrolled-button {
+    background-color: lightgrey; /* Green color for enrolled button */
+    color: white; /* White text color */
+    border: none; /* No border */
+    cursor: default; /* Default cursor for disabled button */
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 8px;
+    width:100px;
+}
+
+.tournament-button {
+  flex-grow: 1;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 8px; /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.tournament-button:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Hover effect for depth */
+}
+/* General Typography and Spacing */
+body {
+    line-height: 1.6; /* Improve line height for readability */
+}
+
+h1 {
+    margin-bottom: 2rem; /* Add more space below the header */
 }
 
   </style>
@@ -246,15 +356,14 @@
 
 
 function searchTournaments() {
-    var input, filter, ul, li, a, i, txtValue;
-    input = document.getElementById('searchBar');
-    filter = input.value.toUpperCase();
-    ul = document.getElementById("tournamentList");
-    li = ul.getElementsByTagName('li');
+    var input = document.getElementById('searchBar');
+    var filter = input.value.toUpperCase();
+    var ul = document.getElementById("tournamentList");
+    var li = ul.getElementsByTagName('li');
 
-    for (i = 0; i < li.length; i++) {
-        a = li[i].getElementsByTagName("div")[0]; // Assuming tournament name is the first div
-        txtValue = a.textContent || a.innerText;
+    for (var i = 0; i < li.length; i++) {
+        var name = li[i].getElementsByClassName("tournament-name")[0];
+        var txtValue = name.textContent || name.innerText;
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
             li[i].style.display = "";
         } else {
@@ -262,11 +371,50 @@ function searchTournaments() {
         }
     }
 }
+function enrollTournament(button, tournamentId, username) {
+    button.textContent = 'Enrolling...'; // Show enrolling text
+    button.disabled = true; // Disable button during the process
 
+    button.style.backgroundColor = "#4CAF50"; // Change to green
+    button.textContent = "Enrolled";
+    button.disabled = true;
 
+    fetch('/enroll_tournament', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // Add CSRF token header if needed
+        },
+        body: JSON.stringify({
+            tournament_id: tournamentId,
+            username: username // Ensure this is rendered by the template engine
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            button.classList.remove('enroll-button');
+            button.classList.add('enrolled-button');
+            button.textContent = 'Enrolled';
+            button.disabled = true;
+            button.style.backgroundColor = '#4CAF50'; // Change to green color
+        } else {
+            button.textContent = 'Enroll';
+            button.disabled = false;
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        button.textContent = 'Enroll';
+        button.disabled = false;
+        alert('An error occurred while enrolling.');
+    });
+
+}
     </script>
 </head>
-<body class="text-white">
+<body class="text-black">
     <div class="max-w-sm mx-auto">
         <div class="px-4 py-2 items-center">
             <div class="flex justify-center text-center" style="margin-top: 10px;">
@@ -299,42 +447,60 @@ function searchTournaments() {
     {% endif %}
 </div>
 
-<form action="{{ url_for('RCL_Tournament_Screen') }}" method="get">
-    <div class="search-container text-center py-4">
-        <input type="text" name="search" id="searchBar" placeholder="Search for tournaments..." class="search-bar">
-        <button type="submit">Search</button>
-    </div>
-</form>
+
 
 <div class="grid grid-cols-1 gap-4 mb-4 px-4" style="margin-top: 130px;">
     <div class="text-center py-4 rounded-lg bg-[#2A2A2A]">
       <h1 class="text-4xl font-bold text-center text-white px-4">Tournaments</h1>
     </div>
-
-    <div class="overflow-hidden rounded-lg">
-      <ul id="tournamentList" class="px-0">
-        {% for tournament in current_tournaments %}
-        <li class="bg-[#2A2A2A] rounded-lg p-4 tournament-item">
+   <form action="{{ url_for('RCL_Tournament_Screen') }}" method="get">
+   <div class="search-container text-center py-4">
+    <div class="search-bar-wrapper relative">
+        <input type="text" name="search" id="searchBar" placeholder="Search for tournaments..." class="search-bar" oninput="searchTournaments()">
+        <i class="fas fa-search search-icon"></i> <!-- Font Awesome search icon -->
+    </div>
+</div>
+</form>
+<div class="overflow-hidden rounded-lg">
+  <ul id="tournamentList" class="px-0">
+      {% for tournament in current_tournaments %}
+      <li class="bg-[#2A2A2A] rounded-lg p-4 tournament-item">
           <div class="tournament-name">{{ tournament[1] }}</div>
           
           <div class="button-container">
-            {% if tournament[0] in enrolled_tournaments %}
-            <button class="tournament-button enrolled-button" disabled>Enrolled</button>
-            {% else %}
-            <form action="{{ url_for('enroll') }}" method="POST" class="tournament-button enroll-button">
-              <input type="hidden" name="username" value="{{ username }}">
-              <input type="hidden" name="tournament_id" value="{{ tournament[0] }}">
-              <button type="submit" class="w-full">Enroll</button>
-            </form>
-            {% endif %}
-            <button class="tournament-button ranking-button">
-              <a href="{{ url_for('tourna_lead', tournament_id=tournament[0]) }}">Rankings</a>
-            </button>
+              {% if tournament[1] not in enrolled_tournaments %}
+              <button style="
+                background-color: #f44336;
+                color: white;
+                border: none;
+                cursor: pointer;
+                padding: 10px 15px;
+                font-size: 1rem;
+                border-radius: 8px;
+                transition: background-color 0.3s ease;
+                width: 100px;
+              "
+              type="button" class="tournament-button enroll-button" onclick="enrollTournament(this, '{{ tournament[1] }}', '{{ username }}')">Enroll</button>
+              {% else %}
+              <button style="
+                background-color: #4CAF50; /* Green color for enrolled button */
+                color: white;
+                border: none;
+                cursor: default;
+                padding: 10px 15px;
+                font-size: 1rem;
+                border-radius: 8px;
+                width: 100px;
+              "
+              type="button" class="tournament-button enrolled-button" disabled>Enrolled</button>
+              {% endif %}
+              <button class="tournament-button ranking-button">
+                  <a href="{{ url_for('tourna_lead', tournament_id=tournament[0]) }}">Rankings</a>
+              </button>
           </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+      </li>
+      {% endfor %}
+  </ul>
 </div>
 
 
