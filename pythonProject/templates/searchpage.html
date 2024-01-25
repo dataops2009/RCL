@@ -1,4 +1,4 @@
-<html lang="en">
+F<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -322,6 +322,33 @@ h1 {
     margin-bottom: 2rem; /* Add more space below the header */
 }
 
+.scrollable-list-container {
+    max-width: 400px; /* Adjust as needed */
+    margin-left: auto; /* Pushes the container to the right */
+}
+
+.scrollable-list {
+    max-height: 500px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+/* Scroll Bar Styles */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
   </style>
 </head>
 
@@ -407,8 +434,6 @@ function searchPlayers() {
         <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
         <a class="nav-opacity" href="{{ url_for('gamer_profile') }}">My Profile</a>
-        <a class="nav-opacity" href="{{ url_for('RCL_Create_Team_Screen') }}">Create a Team</a>
-        <a class="nav-opacity" href="{{ url_for('RCL_Team_Management_Screen') }}">Team Management</a>
         <a class="nav-opacity" href="{{ url_for('search_page') }}"> Player Search </a>
 
         <!-- Logout Button -->
@@ -423,40 +448,48 @@ function searchPlayers() {
     {% endif %}
 </div>
 
-
-
-<div class="grid grid-cols-1 gap-4 mb-4 px-4" style="margin-top: 130px;">
-    <div class="text-center py-4 rounded-lg bg-[#2A2A2A]">
-      <h1 class="text-4xl font-bold text-center text-white px-4">Tournaments</h1>
+ <div style="display: flex; justify-content: center;">
+        <img src="static/images/RCL.png" alt="Girl in a jacket" width="250" height="300" style="position: relative; top: 25px;">
     </div>
-   <form action="{{ url_for('search_page') }}" method="get">
- <div class="search-container text-center py-4">
-    <div class="search-bar-wrapper relative">
-        <input type="text" id="searchBar" placeholder="Search for players..." class="search-bar" oninput="searchPlayers()">
-        <i class="fas fa-search search-icon"></i> <!-- Font Awesome search icon -->
-    </div>
-</div>
 
-</form>
-<<div class="overflow-hidden rounded-lg flex justify-center">
-    <ul id="playerList" class="px-0 w-full max-w-2xl">
-    <ul id="playerList" class="px-0 w-full max-w-2xl">
-   {% for player in players %}
-<li class="bg-[#2A2A2A] rounded-lg p-4 mb-5 flex items-center justify-between">
-    <div class="flex items-center">
-        <i class="fas fa-user profile-icon mr-2 text-2xl"></i>
-        <!-- Make the player name a link to the profile page -->
-        <a href="{{ url_for('gamer_profilenotloggedin', usernamenot=player[0]) }}" class="player-name text-lg text-blue-500 hover:text-blue-700">{{ player[0] }}</a>
-    </div>
-    <div class="flex items-center">
-        <i class="fas fa-trophy ranking-icon mr-2 text-2xl"></i>
-        <div class="player-ranking text-lg">Ranking: {{ player[1] }}</div>
-    </div>
-</li>
-{% endfor %}
-</ul>
+    <br>
+    <br>
 
-</div>
+<div class="grid grid-cols-1 gap-4 mb-4 px-4" style="margin-top: -50px;">
+        <div class="text-center py-4 rounded-lg bg-[#2A2A2A]">
+            <h1 class="text-4xl font-bold text-center text-white px-4">Player Search</h1>
+        </div>
 
+        <form action="{{ url_for('search_page') }}" method="get">
+            <div class="search-container text-center py-4">
+                <div class="search-bar-wrapper relative">
+                    <input type="text" id="searchBar" placeholder="Search for players..." class="search-bar" oninput="searchPlayers()">
+                    <i class="fas fa-search search-icon"></i> <!-- Font Awesome search icon -->
+                </div>
+            </div>
+        </form>
+
+        <!-- Scrollable List -->
+        <div style = "margin-top: -30px" class="overflow-hidden rounded-lg flex justify-center">
+            <ul id="playerList" class="px-0 w-full max-w-2xl scrollable-list">
+                {% for player in players %}
+                <li class="bg-[#2A2A2A] rounded-lg p-4 mb-5 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-user profile-icon mr-2 text-2xl"></i>
+                        {% if player[0] == username %}
+                            <p style='color:red;'>{{ player[0] }}</p>
+                        {% else %}
+                            <a href="{{ url_for('gamer_profilenotloggedin', usernamenot=player[0]) }}" class="player-name text-lg text-blue-500 hover:text-blue-700">{{ player[0] }}</a>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-trophy ranking-icon mr-2 text-2xl"></i>
+                        <div class="player-ranking text-lg">Ranking: {{ player[1] }}</div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </body>
 </html>

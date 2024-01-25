@@ -120,23 +120,26 @@ def ajax_search_players():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search_page():
+    username = session.get('username')
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch all players initially
+    # Fetch all players, excluding those with blank or null names
     cursor.execute("""
         SELECT p.Name, p.Ranking
         FROM Players_Dim p
-        JOIN UserRegistration u ON p.ID_Var = u.ID_Var;
+        JOIN UserRegistration u ON p.ID_Var = u.ID_Var
+        WHERE p.Name IS NOT NULL AND p.Name != '';
     """)
     players_results = cursor.fetchall()
-
-    # Rest of your code for teams, etc.
 
     cursor.close()
     conn.close()
 
-    return render_template('searchpage.html', players=players_results)
+    return render_template('searchpage.html', username=username, players=players_results)
+
+
+
 
 
 
@@ -699,7 +702,7 @@ def upload_banner_image_to_db(banner_image, username):
     try:
         # Open the image using Pillow and resize
         img = Image.open(banner_image)
-        img.thumbnail((300, 800), Image.ANTIALIAS)  # Resize the image
+        img.thumbnail((800, 800), Image.ANTIALIAS)  # Resize the image
 
         # Convert the image to WebP format with optimization
         img_io = BytesIO()
@@ -1274,17 +1277,14 @@ def fetch_profile_image_url_from_db(username):
 
 
 
-
-
 def upload_profile_image_to_db(profile_image, username):
     try:
         # Open the image using Pillow
         img = Image.open(profile_image)
 
-        # Resize the image (if needed) and convert to WebP format
-        img.thumbnail((300, 00), Image.ANTIALIAS)  # Resize the image if it's larger than 800x800
+        # Convert the image to WebP format
         img_io = BytesIO()
-        img.save(img_io, 'WEBP', quality=30)  # Convert to WebP format with reduced quality
+        img.save(img_io, 'WEBP', quality=30)  # Adjust quality as needed
         img_io.seek(0)
         webp_image_data = img_io.read()
 
@@ -1307,7 +1307,6 @@ def upload_profile_image_to_db(profile_image, username):
         if conn:
             conn.close()
     return True
-
 
 
     # Function to upload the profile image to the database
