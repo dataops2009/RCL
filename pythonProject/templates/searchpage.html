@@ -355,63 +355,37 @@ h1 {
     }
 
 
-function searchTournaments() {
-    var input = document.getElementById('searchBar');
-    var filter = input.value.toUpperCase();
-    var ul = document.getElementById("tournamentList");
+
+
+
+function updatePlayerList(players) {
+    var playerList = document.getElementById('playerList');
+    playerList.innerHTML = ''; // Clear current list
+
+    players.forEach(player => {
+        var li = document.createElement('li');
+        li.textContent = player.Name + ' - Ranking: ' + player.Ranking;
+        playerList.appendChild(li);
+    });
+}
+
+function searchPlayers() {
+    var input = document.getElementById('searchBar').value.toUpperCase();
+    var ul = document.getElementById("playerList");
     var li = ul.getElementsByTagName('li');
 
     for (var i = 0; i < li.length; i++) {
-        var name = li[i].getElementsByClassName("tournament-name")[0];
-        var txtValue = name.textContent || name.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        var playerName = li[i].getElementsByClassName("player-name")[0];
+        var txtValue = playerName.textContent || playerName.innerText;
+        if (txtValue.toUpperCase().indexOf(input) > -1) {
             li[i].style.display = "";
         } else {
             li[i].style.display = "none";
         }
     }
 }
-function enrollTournament(button, tournamentId, username) {
-    button.textContent = 'Enrolling...'; // Show enrolling text
-    button.disabled = true; // Disable button during the process
 
-    button.style.backgroundColor = "#4CAF50"; // Change to green
-    button.textContent = "Enrolled";
-    button.disabled = true;
 
-    fetch('/enroll_tournament', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            // Add CSRF token header if needed
-        },
-        body: JSON.stringify({
-            tournament_id: tournamentId,
-            username: username // Ensure this is rendered by the template engine
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            button.classList.remove('enroll-button');
-            button.classList.add('enrolled-button');
-            button.textContent = 'Enrolled';
-            button.disabled = true;
-            button.style.backgroundColor = '#4CAF50'; // Change to green color
-        } else {
-            button.textContent = 'Enroll';
-            button.disabled = false;
-            alert(data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        button.textContent = 'Enroll';
-        button.disabled = false;
-        alert('An error occurred while enrolling.');
-    });
-
-}
     </script>
 </head>
 <body class="text-black">
@@ -428,7 +402,7 @@ function enrollTournament(button, tournamentId, username) {
         <div class="burger-line"></div>
     </div>
     <div class="sidebar" id="sidebar">
-     {% if session.username %}
+    {% if session.username %}
         <!-- Navigation items for logged-in users -->
         <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
@@ -451,62 +425,38 @@ function enrollTournament(button, tournamentId, username) {
 
 
 
-
-
 <div class="grid grid-cols-1 gap-4 mb-4 px-4" style="margin-top: 130px;">
     <div class="text-center py-4 rounded-lg bg-[#2A2A2A]">
       <h1 class="text-4xl font-bold text-center text-white px-4">Tournaments</h1>
     </div>
-   <form action="{{ url_for('RCL_Tournament_Screen') }}" method="get">
-   <div class="search-container text-center py-4">
+   <form action="{{ url_for('search_page') }}" method="get">
+ <div class="search-container text-center py-4">
     <div class="search-bar-wrapper relative">
-        <input type="text" name="search" id="searchBar" placeholder="Search for tournaments..." class="search-bar" oninput="searchTournaments()">
+        <input type="text" id="searchBar" placeholder="Search for players..." class="search-bar" oninput="searchPlayers()">
         <i class="fas fa-search search-icon"></i> <!-- Font Awesome search icon -->
     </div>
 </div>
-</form>
-<div class="overflow-hidden rounded-lg">
-  <ul id="tournamentList" class="px-0">
-      {% for tournament in current_tournaments %}
-      <li class="bg-[#2A2A2A] rounded-lg p-4 tournament-item">
-          <div class="tournament-name">{{ tournament[1] }}</div>
-          
-          <div class="button-container">
-              {% if tournament[1] not in enrolled_tournaments %}
-              <button style="
-                background-color: #f44336;
-                color: white;
-                border: none;
-                cursor: pointer;
-                padding: 10px 15px;
-                font-size: 1rem;
-                border-radius: 8px;
-                transition: background-color 0.3s ease;
-                width: 100px;
-              "
-              type="button" class="tournament-button enroll-button" onclick="enrollTournament(this, '{{ tournament[1] }}', '{{ username }}')">Enroll</button>
-              {% else %}
-              <button style="
-                background-color: #4CAF50; /* Green color for enrolled button */
-                color: white;
-                border: none;
-                cursor: default;
-                padding: 10px 15px;
-                font-size: 1rem;
-                border-radius: 8px;
-                width: 100px;
-              "
-              type="button" class="tournament-button enrolled-button" disabled>Enrolled</button>
-              {% endif %}
-              <button class="tournament-button ranking-button">
-                  <a href="{{ url_for('tourna_lead', tournament_id=tournament[0]) }}">Rankings</a>
-              </button>
-          </div>
-      </li>
-      {% endfor %}
-  </ul>
-</div>
 
+</form>
+<<div class="overflow-hidden rounded-lg flex justify-center">
+    <ul id="playerList" class="px-0 w-full max-w-2xl">
+    <ul id="playerList" class="px-0 w-full max-w-2xl">
+   {% for player in players %}
+<li class="bg-[#2A2A2A] rounded-lg p-4 mb-5 flex items-center justify-between">
+    <div class="flex items-center">
+        <i class="fas fa-user profile-icon mr-2 text-2xl"></i>
+        <!-- Make the player name a link to the profile page -->
+        <a href="{{ url_for('gamer_profilenotloggedin', usernamenot=player[0]) }}" class="player-name text-lg text-blue-500 hover:text-blue-700">{{ player[0] }}</a>
+    </div>
+    <div class="flex items-center">
+        <i class="fas fa-trophy ranking-icon mr-2 text-2xl"></i>
+        <div class="player-ranking text-lg">Ranking: {{ player[1] }}</div>
+    </div>
+</li>
+{% endfor %}
+</ul>
+
+</div>
 
 </body>
 </html>

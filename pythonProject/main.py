@@ -46,6 +46,11 @@ from classes.NotificationClass import NotificationManager
 import pymssql
 
 
+from PIL import Image
+from io import BytesIO
+import pymssql
+
+
 notification_manager = NotificationManager()
 
 app = Flask(__name__)
@@ -88,6 +93,53 @@ def get_db_connection():
                            database='rcldevelopmentdatabase')
 
     return conn
+
+
+
+@app.route('/ajax_search_players', methods=['POST'])
+def ajax_search_players():
+    data = request.json
+    search_query = data['search_query']
+
+    # Connect to database and fetch players based on search query
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT p.Name, p.Ranking
+        FROM Players_Dim p
+        JOIN UserRegistration u ON p.ID_Var = u.ID_Var
+        WHERE LOWER(p.Name) LIKE LOWER(%s);
+    """, ('%' + search_query + '%',))
+
+    players_results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return jsonify(players_results)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search_page():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetch all players initially
+    cursor.execute("""
+        SELECT p.Name, p.Ranking
+        FROM Players_Dim p
+        JOIN UserRegistration u ON p.ID_Var = u.ID_Var;
+    """)
+    players_results = cursor.fetchall()
+
+    # Rest of your code for teams, etc.
+
+    cursor.close()
+    conn.close()
+
+    return render_template('searchpage.html', players=players_results)
+
+
+
 
 def generate_short_unique_id():
     unique_id = str(uuid.uuid4())  # Generate a UUID
@@ -519,6 +571,99 @@ def compress_image(image, max_size=800, quality=85):
 
 
 
+def profile_image_db_loggedoff(username):
+    #username = session.get('username') 
+    try:
+        # Connect to the database
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                               user='rcldeveloper',
+                               password='media$2009',
+                               database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+        
+        # SQL query to fetch the profile image BLOB
+        query = 'SELECT ProfileImageColumn FROM UserRegistration WHERE Username = %s'
+        cursor.execute(query, (username,))
+        result = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        if result and result[0] is not None:
+            # Convert BLOB to base64 string
+            profile_image_blob = result[0]
+            profile_image_base64 = base64.b64encode(profile_image_blob).decode("utf-8")
+            return f"data:image/jpeg;base64,{profile_image_base64}"
+        else:
+            return None  # No result or no image found for the given username
+
+    except Exception as e:
+        print(f"An error occurred while fetching the profile image URL: {str(e)}")
+        return None
+
+def profile_image_db(username):
+    username = session.get('username') 
+    try:
+        # Connect to the database
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                               user='rcldeveloper',
+                               password='media$2009',
+                               database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+        
+        # SQL query to fetch the profile image BLOB
+        query = 'SELECT ProfileImageColumn FROM UserRegistration WHERE Username = %s'
+        cursor.execute(query, (username,))
+        result = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        if result and result[0] is not None:
+            # Convert BLOB to base64 string
+            profile_image_blob = result[0]
+            profile_image_base64 = base64.b64encode(profile_image_blob).decode("utf-8")
+            return f"data:image/jpeg;base64,{profile_image_base64}"
+        else:
+            return None  # No result or no image found for the given username
+
+    except Exception as e:
+        print(f"An error occurred while fetching the profile image URL: {str(e)}")
+        return None
+
+
+
+def fetch_banner_image_url_from_db_loggedoff(username):
+    #username = session.get('username') 
+    try:
+        # Connect to the database
+        conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
+                               user='rcldeveloper',
+                               password='media$2009',
+                               database='rcldevelopmentdatabase')
+        cursor = conn.cursor()
+        
+        # SQL query to fetch the profile image BLOB
+        query = 'SELECT PlayerBackground FROM UserRegistration WHERE Username = %s'
+        cursor.execute(query, (username,))
+        result = cursor.fetchone()
+
+        # Close the database connection
+        conn.close()
+
+        if result and result[0] is not None:
+            # Convert BLOB to base64 string
+            profile_image_blob = result[0]
+            profile_image_base64 = base64.b64encode(profile_image_blob).decode("utf-8")
+            return f"data:image/jpeg;base64,{profile_image_base64}"
+        else:
+            return None  # No result or no image found for the given username
+
+    except Exception as e:
+        print(f"An error occurred while fetching the profile image URL: {str(e)}")
+        return None
+
+
 def fetch_banner_image_url_from_db(username):
     username = session.get('username') 
     try:
@@ -550,21 +695,35 @@ def fetch_banner_image_url_from_db(username):
         return None
 
 
-
 def upload_banner_image_to_db(banner_image, username):
     try:
-        conn = pymssql.connect(...)
+        # Open the image using Pillow and resize
+        img = Image.open(banner_image)
+        img.thumbnail((300, 800), Image.ANTIALIAS)  # Resize the image
+
+        # Convert the image to WebP format with optimization
+        img_io = BytesIO()
+        img.save(img_io, 'WEBP', quality=30, optimize=True)
+        img_io.seek(0)
+        webp_image_data = img_io.read()
+
+        # Connect to the database
+        conn = pymssql.connect(...)  # Fill in your connection details
         cursor = conn.cursor()
 
-        image_data = banner_image.read()
+        # Update the database with the WebP image data
         cursor.execute('UPDATE UserRegistration SET PlayerBackground = %s WHERE Username = %s',
-                       (image_data, username))
+                       (webp_image_data, username))
         conn.commit()
-        conn.close()
-        return True
+
     except Exception as e:
         print(f"Error uploading banner image: {e}")
         return False
+    finally:
+        if conn:
+            conn.close()
+    return True
+
 
 
 
@@ -687,6 +846,110 @@ def upload_and_store_image(profile_image, username):
     else:
         flash('Failed to store image URL in the database.', 'error')
         return None
+
+@app.route('/gamer-profilenotloggedin/<usernamenot>', methods=['GET'])
+def gamer_profilenotloggedin(usernamenot):
+    #username = session.get('username')
+    # Fetch player data based on the username
+    player_image_url = fetch_banner_image_url_from_db_loggedoff(usernamenot)
+    profile_image_url = profile_image_db_loggedoff(usernamenot)
+    player_data = get_player_data(usernamenot)  # Define this function to fetch data from your database
+
+    # If no player data is found, redirect to a 404 page or give a user not found message
+    if not player_data:
+        return "User not found", 404
+
+    cursor.execute("SELECT ID_Var FROM UserRegistration WHERE Username = %s", (usernamenot,))
+
+    conn.commit()
+    
+    result = cursor.fetchone()
+    user_id = result[0] if result else None
+
+    enrolled_tournaments = []
+    if user_id:
+        # Fetch tournaments in which the user is enrolled
+        cursor.execute("SELECT tournament_id FROM user_enrollments WHERE ID_Var = %s", (user_id,))
+        tournaments = cursor.fetchall()
+        for tournament in tournaments:
+            # Assuming tournament_id is enough for display, otherwise join with tournaments table to fetch more details
+            enrolled_tournaments.append(tournament[0])
+
+
+    #username = session['username']
+    user_id = get_user_id(usernamenot)  # Make sure you have this function to get the user's ID
+    print(user_id)
+
+
+   # Check if the user is a captain, co-captain, or a team player
+    cursor.execute("SELECT ur.ID_Var, tp.Team_ID FROM UserRegistration ur JOIN TeamPlayers tp ON ur.ID_Var = tp.Player_ID WHERE ur.Username = %s", (usernamenot,))
+    user_team_result = cursor.fetchone()
+
+    user_role = "Not part of a team"
+    if user_team_result:
+        user_id, team_id = user_team_result
+        cursor.execute("SELECT CaptainID, CoCaptainID FROM Teams_Dim WHERE Team_ID = %s", (team_id,))
+        captain_result = cursor.fetchone()
+        if captain_result:
+            if captain_result[0] == user_id:
+                user_role = "Captain"
+            elif len(captain_result) > 1 and captain_result[1] == user_id:
+                user_role = "Co-Captain"
+            else:
+                user_role = "Team Player"
+
+    user_team_name = None  # Default to None if no team is found
+    if user_id:
+        try:
+            # Query to check if the user is part of a team
+            cursor.execute("SELECT Team_ID FROM TeamPlayers WHERE Player_ID = %s", (user_id,))
+            team_id_result = cursor.fetchone()
+
+            if team_id_result:
+                team_id = team_id_result[0]
+
+                # Query to get the team's name using the Team_ID
+                cursor.execute("SELECT Name FROM Teams_Dim WHERE Team_ID = %s", (team_id,))
+                team_name_result = cursor.fetchone()
+
+                if team_name_result:
+                    user_team_name = team_name_result[0]
+        except Exception as e:
+            print(f"Error fetching team data: {e}")
+
+    # Render the gamer's profile page without the option to upload images
+    return render_template('profilenotloggedin.html',  user_team_name = user_team_name, user_role = user_role, profile_image_url = profile_image_url, player_image_url =  player_image_url, player=player_data)
+
+def get_player_data(username):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT p.Name, p.Ranking, p.GamesPlayed, p.GamesWon, u.ProfileImageColumn
+        FROM Players_Dim p
+        JOIN UserRegistration u ON p.ID_Var = u.ID_Var
+        WHERE p.Name = %s
+        """
+        cursor.execute(query, (username,))
+        player_row = cursor.fetchone()
+        
+        if player_row:
+            player_data = {
+                'username': player_row[0],
+                'ranking': player_row[1],
+                'games_played': player_row[2],
+                'games_won': player_row[3],
+                'profile_image_url': player_row[4]  # Assumes this is a URL or a path to the image
+            }
+            return player_data
+        else:
+            return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+    finally:
+        conn.close()
 
 
 
@@ -1011,26 +1274,39 @@ def fetch_profile_image_url_from_db(username):
 
 
 
+
+
 def upload_profile_image_to_db(profile_image, username):
     try:
+        # Open the image using Pillow
+        img = Image.open(profile_image)
+
+        # Resize the image (if needed) and convert to WebP format
+        img.thumbnail((300, 00), Image.ANTIALIAS)  # Resize the image if it's larger than 800x800
+        img_io = BytesIO()
+        img.save(img_io, 'WEBP', quality=30)  # Convert to WebP format with reduced quality
+        img_io.seek(0)
+        webp_image_data = img_io.read()
+
+        # Connect to the database
         conn = pymssql.connect(server='rcldevelopmentserver.database.windows.net',
                                user='rcldeveloper',
                                password='media$2009',
                                database='rcldevelopmentdatabase')
         cursor = conn.cursor()
 
-        # Convert the image to binary for database storage
-        image_data = profile_image.read()
-
-        # Use the username parameter in the SQL query instead of hardcoding it
+        # Update the database with the WebP image data
         cursor.execute('UPDATE UserRegistration SET ProfileImageColumn = %s WHERE Username = %s',
-                       (image_data, username))
+                       (webp_image_data, username))
         conn.commit()
-        conn.close()
-        return True
+
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
+    finally:
+        if conn:
+            conn.close()
+    return True
 
 
 

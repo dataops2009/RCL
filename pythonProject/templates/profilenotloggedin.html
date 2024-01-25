@@ -184,7 +184,7 @@
         <div class="burger-line"></div>
     </div>
   <div class="sidebar" id="sidebar">
-      {% if session.username %}
+    {% if session.username %}
         <!-- Navigation items for logged-in users -->
         <a class="nav-opacity" href="{{ url_for('RCL_Home_Screen') }}">Home</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Tournament_Screen') }}">Tournaments</a>
@@ -203,6 +203,7 @@
         <a class="nav-opacity" href="{{ url_for('RCL_Signup_Screen') }}">Signup</a>
         <a class="nav-opacity" href="{{ url_for('RCL_Login_Screen') }}">Login</a>
     {% endif %}
+
 
                      
        
@@ -239,22 +240,22 @@
                
 <div class="container mx-auto p-4">
     <!-- Profile Header -->
-    <div class="profile-header" style="background-image: url('{{ banner_image_url }}'); position: relative;">
+    <div class="profile-header" style="background-image: url('{{ profile_image_url }}'); position: relative;">
         <!-- Banner Image Upload Form -->
-        <form action="{{ url_for('upload_banner_image') }}" method="POST" enctype="multipart/form-data" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-            <input type="file" name="banner_image" accept="image/*" id="bannerFileInput" style="display: none;" onchange="this.form.submit()">
-            <label for="bannerFileInput" style="display: block; width: 100%; height: 100%; cursor: pointer;"></label>
-        </form>
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+          
+            <label for="bannerFileInput" style="display: block; width: 100%; height: 100%; "></label>
+      </div>
 
         <!-- Profile Image and Information -->
         <div class="p-4">
             <!-- Profile Image Upload Form -->
-            <form action="{{ url_for('upload_image') }}" method="POST" enctype="multipart/form-data" style="position: absolute; top: 20px; left: 20px;">
-                <input type="file" name="profile_image" accept="image/*" id="fileInput" style="display: none;" onchange="this.form.submit()">
-                <label for="fileInput" style="cursor: pointer;">
-                    <img class="rounded-full w-24 h-24 border-4 border-blue-600 mb-2" src="{{ profile_image_url }}" alt="No Profile Picture">
+            <div style="position: absolute; top: 20px; left: 20px;">
+                
+                <label for="fileInput = " >
+                    <img class="rounded-full w-24 h-24 border-4 border-blue-600 mb-2" src="{{ profile_image_url }}" alt="Profile Picture">
                 </label>
-            </form>
+            </div>
                 <br>
                 <br>
                 <br>
@@ -262,7 +263,7 @@
                 <br>
 
             <!-- User Information -->
-            <h1 class="text-2xl font-bold text-white bg-black bg-opacity-50 rounded-lg" style="padding: px;">{{ username }}</h1>
+            <h1 class="text-2xl font-bold text-white bg-black bg-opacity-50 rounded-lg" style="padding: px;">{{ player.username }}</h1>
             <div class="flex justify-between items-center text-sm bg-black bg-opacity-50 rounded-lg padding-5" style="padding: 5px; margin-top: 2px;">
                 <div>2438 Videos</div>
                 <div>33k Views</div>
@@ -332,9 +333,9 @@
                         <img class="rounded-full w-8 h-8 mr-2" src="https://placehold.co/32x32?text=PUBG&fontsize=10" alt="PUBG Mobile Game Icon">
                         <div class="user-team-info">
         {% if user_team_name %}
-            <h3>Your Team: {{ user_team_name }}</h3>
+            <h3>{{ player.username }} Team: {{ user_team_name }}</h3>
         {% else %}
-            <p>You are currently not part of any team.</p>
+            <p>They are currently not part of any team.</p>
         {% endif %}
     </div>
                     <span class="ml-auto {{ 'bg-yellow-500' if user_role == 'Captain' else 'bg-silver' if user_role == 'Co-Captain' else 'bg-bronze' }} text-black px-2 py-1 text-xs rounded">{{ user_role }}</span>
